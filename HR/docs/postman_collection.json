@@ -1,0 +1,273 @@
+{
+  "info": {
+    "name": "SD Taxation - Payroll API",
+    "description": "Postman collection for Payroll module endpoints",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3001",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "companyId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "payslipId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employeeId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Payroll",
+      "item": [
+        {
+          "name": "Run Payroll",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"companyId\": \"{{companyId}}\",\n  \"month\": 12,\n  \"year\": 2024,\n  \"workingDays\": 26,\n  \"force\": false\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payroll/run",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payroll", "run"]
+            }
+          }
+        },
+        {
+          "name": "List Payslips",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payroll?companyId={{companyId}}&month=12&year=2024&status=draft&page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payroll"],
+              "query": [
+                {
+                  "key": "companyId",
+                  "value": "{{companyId}}"
+                },
+                {
+                  "key": "month",
+                  "value": "12"
+                },
+                {
+                  "key": "year",
+                  "value": "2024"
+                },
+                {
+                  "key": "status",
+                  "value": "draft"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Employee Payslip",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payslip/{{employeeId}}?month=12&year=2024",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payslip", "{{employeeId}}"],
+              "query": [
+                {
+                  "key": "month",
+                  "value": "12"
+                },
+                {
+                  "key": "year",
+                  "value": "2024"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Payslip",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payroll/{{payslipId}}/approve",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payroll", "{{payslipId}}", "approve"]
+            }
+          }
+        },
+        {
+          "name": "Mark Payslip as Paid",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"paymentRef\": \"TXN123456789\",\n  \"bankLedgerId\": \"507f1f77bcf86cd799439016\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payroll/{{payslipId}}/pay",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payroll", "{{payslipId}}", "pay"]
+            }
+          }
+        },
+        {
+          "name": "Bank Export",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payroll/bank-export?companyId={{companyId}}&month=12&year=2024&format=csv",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payroll", "bank-export"],
+              "query": [
+                {
+                  "key": "companyId",
+                  "value": "{{companyId}}"
+                },
+                {
+                  "key": "month",
+                  "value": "12"
+                },
+                {
+                  "key": "year",
+                  "value": "2024"
+                },
+                {
+                  "key": "format",
+                  "value": "csv"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Generate PDF",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payslip/{{payslipId}}/generate-pdf",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payslip", "{{payslipId}}", "generate-pdf"]
+            }
+          }
+        },
+        {
+          "name": "Email Payslip",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "type": "text"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/payslip/{{payslipId}}/email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payslip", "{{payslipId}}", "email"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

@@ -1,0 +1,39 @@
+# AWS S3 Configuration for Company Logo Uploads
+
+# Add these environment variables to your .env file
+
+# AWS Credentials
+AWS_ACCESS_KEY_ID=your_aws_access_key_id_here
+AWS_SECRET_ACCESS_KEY=your_aws_secret_access_key_here
+
+# AWS Region (e.g., us-east-1, us-west-2, eu-west-1)
+AWS_REGION=us-east-1
+
+# S3 Bucket Name (must be globally unique)
+AWS_S3_BUCKET_NAME=your-company-logos-bucket
+
+# Optional: S3 Bucket URL (for custom domains)
+# AWS_S3_BUCKET_URL=https://your-custom-domain.com
+
+# File Upload Settings
+MAX_FILE_SIZE=5242880  # 5MB in bytes
+ALLOWED_FILE_TYPES=image/jpeg,image/png,image/gif,image/webp
+
+# S3 Bucket Setup Instructions:
+# 1. Create an S3 bucket in AWS Console
+# 2. Configure bucket permissions for public read access
+# 3. Set up CORS policy if needed for web uploads
+# 4. Add these environment variables to your .env file
+# 5. Restart your application
+
+# CORS Policy Example for S3 Bucket:
+# {
+#   "CORSRules": [
+#     {
+#       "AllowedHeaders": ["*"],
+#       "AllowedMethods": ["GET", "PUT", "POST"],
+#       "AllowedOrigins": ["*"],
+#       "ExposeHeaders": ["ETag"]
+#     }
+#   ]
+# }

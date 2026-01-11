@@ -1,0 +1,14 @@
+
+PAYSLIP PLACEHOLDER
+
+Employee: Neha Singh
+Employee Code: EMP002
+Company: Local Services Inc
+Period: 12/2025
+
+Gross: 39500
+Deductions: 2700
+Net Pay: 36800
+
+This is a placeholder. Implement actual PDF generation.
+    
