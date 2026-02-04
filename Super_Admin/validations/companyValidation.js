@@ -71,6 +71,9 @@ exports.createCompanySchema = Joi.object({
   }),
   fiscalYear: Joi.string().pattern(/^[0-9]{4}-[0-9]{4}$/).optional().allow('').messages({
     'string.pattern.base': 'Fiscal year must be in format YYYY-YYYY (e.g., 2024-2025)'
+  }),
+  industries: Joi.string().max(500).optional().allow('').messages({
+    'string.max': 'Industries must not exceed 500 characters'
   })
 });
 
@@ -120,6 +123,9 @@ exports.updateCompanySchema = Joi.object({
   }),
   fiscalYear: Joi.string().pattern(/^[0-9]{4}-[0-9]{4}$/).optional().allow('').messages({
     'string.pattern.base': 'Fiscal year must be in format YYYY-YYYY (e.g., 2024-2025)'
+  }),
+  industries: Joi.string().max(500).optional().allow('').messages({
+    'string.max': 'Industries must not exceed 500 characters'
   })
 });
 

@@ -79,6 +79,12 @@ const CompanySchema = new mongoose.Schema(
             match: [/^[0-9]{4}-[0-9]{4}$/, 'Fiscal year must be in format YYYY-YYYY (e.g., 2024-2025)'],
             default: null
         },
+        industries: {
+            type: String,
+            trim: true,
+            maxlength: 500,
+            default: null
+        },
         created_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SuperAdmin',

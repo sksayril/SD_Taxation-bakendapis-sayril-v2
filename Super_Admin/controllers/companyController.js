@@ -19,7 +19,8 @@ exports.createCompany = async (req, res) => {
       company_address,
       company_website,
       gstNumber,
-      fiscalYear
+      fiscalYear,
+      industries
     } = req.body;
 
 
@@ -80,6 +81,7 @@ exports.createCompany = async (req, res) => {
       company_website: company_website || null,
       gstNumber: gstNumber || null,
       fiscalYear: fiscalYear || null,
+      industries: industries || null,
       created_by: req.user.id
     });
 
@@ -97,6 +99,7 @@ exports.createCompany = async (req, res) => {
         company_website: company.company_website,
         gstNumber: company.gstNumber,
         fiscalYear: company.fiscalYear,
+        industries: company.industries,
         status: company.status,
         created_at: company.createdAt
       }
@@ -123,6 +126,9 @@ exports.getAllCompanies = async (req, res) => {
       company_address: company.company_address,
       company_logo: company.company_logo,
       company_website: company.company_website,
+      gstNumber: company.gstNumber,
+      fiscalYear: company.fiscalYear,
+      industries: company.industries,
       status: company.status,
       created_by: company.created_by,
       createdAt: company.createdAt,
