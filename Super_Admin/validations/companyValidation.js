@@ -74,6 +74,9 @@ exports.createCompanySchema = Joi.object({
   }),
   industries: Joi.string().max(500).optional().allow('').messages({
     'string.max': 'Industries must not exceed 500 characters'
+  }),
+  constitution_of_business: Joi.string().max(500).optional().allow('').messages({
+    'string.max': 'Constitution of business must not exceed 500 characters'
   })
 });
 
@@ -126,6 +129,9 @@ exports.updateCompanySchema = Joi.object({
   }),
   industries: Joi.string().max(500).optional().allow('').messages({
     'string.max': 'Industries must not exceed 500 characters'
+  }),
+  constitution_of_business: Joi.string().max(500).optional().allow('').messages({
+    'string.max': 'Constitution of business must not exceed 500 characters'
   })
 });
 

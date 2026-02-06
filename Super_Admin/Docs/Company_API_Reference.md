@@ -62,6 +62,8 @@ curl -X GET http://localhost:3000/api/companies \
   - `company_website`: String (optional, valid URL)
   - `gstNumber`: String (optional, valid GST number format)
   - `fiscalYear`: String (optional, format YYYY-YYYY)
+  - `industries`: String (optional, max 500 characters)
+  - `constitution_of_business`: String (optional, max 500 characters)
 
 **Example Form Data:**
 ```
@@ -73,6 +75,8 @@ company_logo: [FILE] (image file)
 company_website: "https://www.acmecorp.com"
 gstNumber: "22ABCDE1234F1Z5"
 fiscalYear: "2024-2025"
+industries: "Technology, Software Development, IT Services"
+constitution_of_business: "Private Limited Company"
 ```
 
 **Validation Rules:**
@@ -85,10 +89,12 @@ fiscalYear: "2024-2025"
   - `state`: Required, 2-100 characters
   - `country`: Required, 2-100 characters
   - `zipCode`: Required, 3-20 characters
-- `company_logo`: Optional, image file (max 5MB, formats: jpg, jpeg, png, gif, webp)
+- `company_logo`: Optional, image file (max 50MB, formats: jpg, jpeg, png, gif, webp)
 - `company_website`: Optional, valid URL
 - `gstNumber`: Optional, valid GST number format (e.g., 22ABCDE1234F1Z5)
 - `fiscalYear`: Optional, format YYYY-YYYY (e.g., 2024-2025)
+- `industries`: Optional, string format, max 500 characters
+- `constitution_of_business`: Optional, string format, max 500 characters
 
 **Success Response (201):**
 ```json
@@ -111,6 +117,8 @@ fiscalYear: "2024-2025"
     "company_website": "https://www.acmecorp.com",
     "gstNumber": "22ABCDE1234F1Z5",
     "fiscalYear": "2024-2025",
+    "industries": "Technology, Software Development, IT Services",
+    "constitution_of_business": "Private Limited Company",
     "status": "active",
     "created_at": "2024-12-17T10:30:00.000Z"
   }
@@ -166,7 +174,9 @@ curl -X POST http://localhost:3000/api/companies/create \
   -F "company_phone=+1-555-123-4567" \
   -F 'company_address={"street":"123 Tech Street","city":"San Francisco","state":"CA","country":"USA","zipCode":"896589"}' \
   -F "company_logo=@/path/to/logo.png" \
-  -F "company_website=https://www.acmecorp.com"
+  -F "company_website=https://www.acmecorp.com" \
+  -F "industries=Technology, Software Development, IT Services" \
+  -F "constitution_of_business=Private Limited Company"
 ```
 
 **cURL (Update Company):**
@@ -178,7 +188,9 @@ curl -X POST http://localhost:3000/api/companies/:id \
   -F "company_phone=+1-555-999-9999" \
   -F 'company_address={"street":"456 Updated Street","city":"New York","state":"NY","country":"USA","zipCode":"10001"}' \
   -F "company_logo=@/path/to/new-logo.png" \
-  -F "company_website=https://www.updatedcompany.com"
+  -F "company_website=https://www.updatedcompany.com" \
+  -F "industries=Technology, Consulting, Business Services" \
+  -F "constitution_of_business=Private Limited Company"
 ```
 
 **PowerShell (with file upload):**
@@ -190,6 +202,8 @@ $form = @{
     company_address = '{"street":"123 Tech Street","city":"San Francisco","state":"CA","country":"USA","zipCode":"896589"}'
     company_logo = Get-Item "C:\path\to\logo.png"
     company_website = "https://www.acmecorp.com"
+    industries = "Technology, Software Development, IT Services"
+    constitution_of_business = "Private Limited Company"
 }
 
 Invoke-RestMethod -Uri "http://localhost:3000/api/companies/create" -Method POST `
@@ -206,6 +220,8 @@ $updateForm = @{
     company_address = '{"street":"456 Updated Street","city":"New York","state":"NY","country":"USA","zipCode":"10001"}'
     company_logo = Get-Item "C:\path\to\new-logo.png"
     company_website = "https://www.updatedcompany.com"
+    industries = "Technology, Consulting, Business Services"
+    constitution_of_business = "Private Limited Company"
 }
 
 Invoke-RestMethod -Uri "http://localhost:3000/api/companies/:id" -Method POST `
@@ -228,6 +244,8 @@ formData.append('company_address', JSON.stringify({
 }));
 formData.append('company_logo', fileInput.files[0]); // File from input element
 formData.append('company_website', 'https://www.acmecorp.com');
+formData.append('industries', 'Technology, Software Development, IT Services');
+formData.append('constitution_of_business', 'Private Limited Company');
 
 const response = await fetch('http://localhost:3000/api/companies/create', {
   method: 'POST',
@@ -256,6 +274,8 @@ updateFormData.append('company_address', JSON.stringify({
 }));
 updateFormData.append('company_logo', newLogoFileInput.files[0]); // New logo file
 updateFormData.append('company_website', 'https://www.updatedcompany.com');
+updateFormData.append('industries', 'Technology, Consulting, Business Services');
+updateFormData.append('constitution_of_business', 'Private Limited Company');
 
 const updateResponse = await fetch(`http://localhost:3000/api/companies/${companyId}`, {
   method: 'POST',
@@ -285,7 +305,9 @@ console.log(updateData);
     "zipCode": "94105"
   },
   "company_logo": "https://techflow.com/images/logo.png",
-  "company_website": "https://www.techflow.com"
+  "company_website": "https://www.techflow.com",
+  "industries": "Technology, Software Development, SaaS",
+  "constitution_of_business": "Private Limited Company"
 }
 ```
 
@@ -303,7 +325,9 @@ console.log(updateData);
     "zipCode": "60601"
   },
   "company_logo": "https://globalmfg.com/assets/logo.svg",
-  "company_website": "https://www.globalmfg.com"
+  "company_website": "https://www.globalmfg.com",
+  "industries": "Manufacturing, Industrial, Production",
+  "constitution_of_business": "Public Limited Company"
 }
 ```
 
@@ -355,6 +379,10 @@ console.log(updateData);
       },
       "company_logo": null,
       "company_website": null,
+      "gstNumber": null,
+      "fiscalYear": null,
+      "industries": null,
+      "constitution_of_business": null,
       "status": "active",
       "created_by": {
         "_id": "68f1df75eb4191c9a3610f08",
@@ -391,9 +419,19 @@ console.log(updateData);
     "company_name": "Tech Solutions Inc",
     "company_email": "info@techsolutions.com",
     "company_phone": "+1-555-0123",
-    "company_address": "123 Tech Street, Silicon Valley, CA 94000",
+    "company_address": {
+      "street": "123 Tech Street",
+      "city": "Silicon Valley",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "94000"
+    },
     "company_logo": "https://example.com/logo.png",
     "company_website": "https://techsolutions.com",
+    "gstNumber": "22ABCDE1234F1Z5",
+    "fiscalYear": "2024-2025",
+    "industries": "Technology, Software Development",
+    "constitution_of_business": "Private Limited Company",
     "status": "active",
     "created_by": {
       "_id": "64f8a1b2c3d4e5f6a7b8c9d1",
@@ -432,9 +470,13 @@ console.log(updateData);
   "company_name": "string (optional, 2-100 characters)",
   "company_email": "string (optional, valid email)",
   "company_phone": "string (optional, 10-20 characters)",
-  "company_address": "string (optional, 10-500 characters)",
-  "company_logo": "string (optional, valid URL)",
-  "company_website": "string (optional, valid URL)"
+  "company_address": "object (optional)",
+  "company_logo": "file (optional, image file)",
+  "company_website": "string (optional, valid URL)",
+  "gstNumber": "string (optional, valid GST number format)",
+  "fiscalYear": "string (optional, format YYYY-YYYY)",
+  "industries": "string (optional, max 500 characters)",
+  "constitution_of_business": "string (optional, max 500 characters)"
 }
 ```
 
@@ -448,9 +490,19 @@ console.log(updateData);
     "company_name": "Updated Tech Solutions Inc",
     "company_email": "updated@techsolutions.com",
     "company_phone": "+1-555-0124",
-    "company_address": "456 New Tech Street, Silicon Valley, CA 94000",
+    "company_address": {
+      "street": "456 New Tech Street",
+      "city": "Silicon Valley",
+      "state": "CA",
+      "country": "USA",
+      "zipCode": "94000"
+    },
     "company_logo": "https://example.com/new-logo.png",
     "company_website": "https://newtechsolutions.com",
+    "gstNumber": "22ABCDE1234F1Z5",
+    "fiscalYear": "2024-2025",
+    "industries": "Technology, Software Development, Consulting",
+    "constitution_of_business": "Private Limited Company",
     "status": "active",
     "created_by": {
       "_id": "64f8a1b2c3d4e5f6a7b8c9d1",
@@ -561,8 +613,13 @@ console.log(deleteData);
   "company_name": "String (required, 2-100 characters)",
   "company_email": "String (required, unique, valid email)",
   "company_phone": "String (required, 10-20 characters)",
+  "company_address": "Object (required)",
   "company_logo": "String (optional, valid URL)",
   "company_website": "String (optional, valid URL)",
+  "gstNumber": "String (optional, valid GST number format)",
+  "fiscalYear": "String (optional, format YYYY-YYYY)",
+  "industries": "String (optional, max 500 characters)",
+  "constitution_of_business": "String (optional, max 500 characters)",
   "created_by": "ObjectId (reference to SuperAdmin)",
   "status": "String (enum: active, inactive, suspended, default: active)",
   "createdAt": "Date",
@@ -619,7 +676,7 @@ AWS_S3_BUCKET_NAME=your-s3-bucket-name
 
 ### File Upload Specifications
 - **Supported Formats:** JPG, JPEG, PNG, GIF, WEBP
-- **Maximum File Size:** 5MB
+- **Maximum File Size:** 50MB
 - **Storage Location:** S3 bucket under `company-logos/` folder
 - **Access Level:** Public read
 - **File Naming:** `logo_{timestamp}_{random}.{extension}`
@@ -667,9 +724,13 @@ AWS_S3_BUCKET_NAME=your-s3-bucket-name
 | company_name | ✅ | String | 2-100 chars |
 | company_email | ✅ | Valid email | Unique |
 | company_phone | ✅ | String | 10-20 chars |
-| company_address | ✅ | String | 10-500 chars |
-| company_logo | ❌ | Valid URL | - |
+| company_address | ✅ | Object | - |
+| company_logo | ❌ | File/URL | Max 50MB |
 | company_website | ❌ | Valid URL | - |
+| gstNumber | ❌ | GST format | - |
+| fiscalYear | ❌ | YYYY-YYYY | - |
+| industries | ❌ | String | Max 500 chars |
+| constitution_of_business | ❌ | String | Max 500 chars |
 
 ### Status Codes Reference
 

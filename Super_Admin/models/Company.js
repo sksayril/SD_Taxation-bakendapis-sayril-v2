@@ -85,6 +85,12 @@ const CompanySchema = new mongoose.Schema(
             maxlength: 500,
             default: null
         },
+        constitution_of_business: {
+            type: String,
+            trim: true,
+            maxlength: 500,
+            default: null
+        },
         created_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SuperAdmin',
