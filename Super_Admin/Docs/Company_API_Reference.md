@@ -64,6 +64,7 @@ curl -X GET http://localhost:3000/api/companies \
   - `fiscalYear`: String (optional, format YYYY-YYYY)
   - `industries`: String (optional, max 500 characters)
   - `constitution_of_business`: String (optional, max 500 characters)
+  - `tdsApplicable`: Boolean (optional, true/false - TDS Applicable toggle)
 
 **Example Form Data:**
 ```
@@ -77,6 +78,7 @@ gstNumber: "22ABCDE1234F1Z5"
 fiscalYear: "2024-2025"
 industries: "Technology, Software Development, IT Services"
 constitution_of_business: "Private Limited Company"
+tdsApplicable: true
 ```
 
 **Validation Rules:**
@@ -95,6 +97,7 @@ constitution_of_business: "Private Limited Company"
 - `fiscalYear`: Optional, format YYYY-YYYY (e.g., 2024-2025)
 - `industries`: Optional, string format, max 500 characters
 - `constitution_of_business`: Optional, string format, max 500 characters
+- `tdsApplicable`: Optional, boolean (true/false) - TDS Applicable toggle button
 
 **Success Response (201):**
 ```json
@@ -119,6 +122,7 @@ constitution_of_business: "Private Limited Company"
     "fiscalYear": "2024-2025",
     "industries": "Technology, Software Development, IT Services",
     "constitution_of_business": "Private Limited Company",
+    "tdsApplicable": true,
     "status": "active",
     "created_at": "2024-12-17T10:30:00.000Z"
   }
@@ -176,7 +180,8 @@ curl -X POST http://localhost:3000/api/companies/create \
   -F "company_logo=@/path/to/logo.png" \
   -F "company_website=https://www.acmecorp.com" \
   -F "industries=Technology, Software Development, IT Services" \
-  -F "constitution_of_business=Private Limited Company"
+  -F "constitution_of_business=Private Limited Company" \
+  -F "tdsApplicable=true"
 ```
 
 **cURL (Update Company):**
@@ -190,7 +195,8 @@ curl -X POST http://localhost:3000/api/companies/:id \
   -F "company_logo=@/path/to/new-logo.png" \
   -F "company_website=https://www.updatedcompany.com" \
   -F "industries=Technology, Consulting, Business Services" \
-  -F "constitution_of_business=Private Limited Company"
+  -F "constitution_of_business=Private Limited Company" \
+  -F "tdsApplicable=false"
 ```
 
 **PowerShell (with file upload):**
@@ -204,6 +210,7 @@ $form = @{
     company_website = "https://www.acmecorp.com"
     industries = "Technology, Software Development, IT Services"
     constitution_of_business = "Private Limited Company"
+    tdsApplicable = $true
 }
 
 Invoke-RestMethod -Uri "http://localhost:3000/api/companies/create" -Method POST `
@@ -222,6 +229,7 @@ $updateForm = @{
     company_website = "https://www.updatedcompany.com"
     industries = "Technology, Consulting, Business Services"
     constitution_of_business = "Private Limited Company"
+    tdsApplicable = $false
 }
 
 Invoke-RestMethod -Uri "http://localhost:3000/api/companies/:id" -Method POST `
@@ -246,6 +254,7 @@ formData.append('company_logo', fileInput.files[0]); // File from input element
 formData.append('company_website', 'https://www.acmecorp.com');
 formData.append('industries', 'Technology, Software Development, IT Services');
 formData.append('constitution_of_business', 'Private Limited Company');
+formData.append('tdsApplicable', 'true');
 
 const response = await fetch('http://localhost:3000/api/companies/create', {
   method: 'POST',
@@ -276,6 +285,7 @@ updateFormData.append('company_logo', newLogoFileInput.files[0]); // New logo fi
 updateFormData.append('company_website', 'https://www.updatedcompany.com');
 updateFormData.append('industries', 'Technology, Consulting, Business Services');
 updateFormData.append('constitution_of_business', 'Private Limited Company');
+updateFormData.append('tdsApplicable', 'false');
 
 const updateResponse = await fetch(`http://localhost:3000/api/companies/${companyId}`, {
   method: 'POST',
@@ -476,7 +486,8 @@ console.log(updateData);
   "gstNumber": "string (optional, valid GST number format)",
   "fiscalYear": "string (optional, format YYYY-YYYY)",
   "industries": "string (optional, max 500 characters)",
-  "constitution_of_business": "string (optional, max 500 characters)"
+  "constitution_of_business": "string (optional, max 500 characters)",
+  "tdsApplicable": "boolean (optional, true/false - TDS Applicable toggle)"
 }
 ```
 
@@ -503,6 +514,7 @@ console.log(updateData);
     "fiscalYear": "2024-2025",
     "industries": "Technology, Software Development, Consulting",
     "constitution_of_business": "Private Limited Company",
+    "tdsApplicable": false,
     "status": "active",
     "created_by": {
       "_id": "64f8a1b2c3d4e5f6a7b8c9d1",
@@ -620,6 +632,7 @@ console.log(deleteData);
   "fiscalYear": "String (optional, format YYYY-YYYY)",
   "industries": "String (optional, max 500 characters)",
   "constitution_of_business": "String (optional, max 500 characters)",
+  "tdsApplicable": "Boolean (optional, true/false - TDS Applicable toggle)",
   "created_by": "ObjectId (reference to SuperAdmin)",
   "status": "String (enum: active, inactive, suspended, default: active)",
   "createdAt": "Date",
@@ -731,6 +744,7 @@ AWS_S3_BUCKET_NAME=your-s3-bucket-name
 | fiscalYear | ❌ | YYYY-YYYY | - |
 | industries | ❌ | String | Max 500 chars |
 | constitution_of_business | ❌ | String | Max 500 chars |
+| tdsApplicable | ❌ | Boolean | true/false |
 
 ### Status Codes Reference
 

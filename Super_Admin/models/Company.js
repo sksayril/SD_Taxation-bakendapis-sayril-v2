@@ -91,6 +91,10 @@ const CompanySchema = new mongoose.Schema(
             maxlength: 500,
             default: null
         },
+        tdsApplicable: {
+            type: Boolean,
+            default: false
+        },
         created_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SuperAdmin',

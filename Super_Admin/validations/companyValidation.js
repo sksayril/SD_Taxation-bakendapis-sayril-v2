@@ -77,6 +77,9 @@ exports.createCompanySchema = Joi.object({
   }),
   constitution_of_business: Joi.string().max(500).optional().allow('').messages({
     'string.max': 'Constitution of business must not exceed 500 characters'
+  }),
+  tdsApplicable: Joi.boolean().optional().messages({
+    'boolean.base': 'TDS Applicable must be a boolean value (true or false)'
   })
 });
 
@@ -132,6 +135,9 @@ exports.updateCompanySchema = Joi.object({
   }),
   constitution_of_business: Joi.string().max(500).optional().allow('').messages({
     'string.max': 'Constitution of business must not exceed 500 characters'
+  }),
+  tdsApplicable: Joi.boolean().optional().messages({
+    'boolean.base': 'TDS Applicable must be a boolean value (true or false)'
   })
 });
 

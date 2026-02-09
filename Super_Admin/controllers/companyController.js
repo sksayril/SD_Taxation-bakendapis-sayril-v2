@@ -21,7 +21,8 @@ exports.createCompany = async (req, res) => {
       gstNumber,
       fiscalYear,
       industries,
-      constitution_of_business
+      constitution_of_business,
+      tdsApplicable
     } = req.body;
 
 
@@ -72,6 +73,16 @@ exports.createCompany = async (req, res) => {
       });
     }
 
+    // Parse tdsApplicable if it's a string (from form data)
+    let parsedTdsApplicable = false;
+    if (tdsApplicable !== undefined && tdsApplicable !== null) {
+      if (typeof tdsApplicable === 'string') {
+        parsedTdsApplicable = tdsApplicable.toLowerCase() === 'true';
+      } else {
+        parsedTdsApplicable = Boolean(tdsApplicable);
+      }
+    }
+
     // Create new company
     const company = await Company.create({
       company_name,
@@ -84,6 +95,7 @@ exports.createCompany = async (req, res) => {
       fiscalYear: fiscalYear || null,
       industries: industries || null,
       constitution_of_business: constitution_of_business || null,
+      tdsApplicable: parsedTdsApplicable,
       created_by: req.user.id
     });
 
@@ -103,6 +115,7 @@ exports.createCompany = async (req, res) => {
         fiscalYear: company.fiscalYear,
         industries: company.industries,
         constitution_of_business: company.constitution_of_business,
+        tdsApplicable: company.tdsApplicable,
         status: company.status,
         created_at: company.createdAt
       }
@@ -133,6 +146,7 @@ exports.getAllCompanies = async (req, res) => {
       fiscalYear: company.fiscalYear,
       industries: company.industries,
       constitution_of_business: company.constitution_of_business,
+      tdsApplicable: company.tdsApplicable,
       status: company.status,
       created_by: company.created_by,
       createdAt: company.createdAt,
@@ -235,6 +249,15 @@ exports.updateCompany = async (req, res) => {
           success: false,
           message: 'Company with this email already exists'
         });
+      }
+    }
+
+    // Parse tdsApplicable if it's a string (from form data)
+    if (updateData.tdsApplicable !== undefined && updateData.tdsApplicable !== null) {
+      if (typeof updateData.tdsApplicable === 'string') {
+        updateData.tdsApplicable = updateData.tdsApplicable.toLowerCase() === 'true';
+      } else {
+        updateData.tdsApplicable = Boolean(updateData.tdsApplicable);
       }
     }
 
