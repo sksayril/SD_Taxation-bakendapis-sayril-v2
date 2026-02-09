@@ -141,6 +141,13 @@ exports.updateCompanySchema = Joi.object({
   })
 });
 
+// Filter Companies Schema
+exports.filterCompaniesSchema = Joi.object({
+  status: Joi.string().valid('active', 'inactive', 'suspended').optional().messages({
+    'any.only': 'Status must be one of: active, inactive, suspended'
+  })
+});
+
 // Update Company Status Schema
 exports.updateCompanyStatusSchema = Joi.object({
   status: Joi.string().valid('active', 'inactive', 'suspended').required().messages({

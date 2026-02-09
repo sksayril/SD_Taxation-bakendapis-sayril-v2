@@ -35,7 +35,16 @@ curl -X POST http://localhost:3000/api/companies/create \
 
 ### 3. Get All Companies
 ```bash
+# Get all companies
 curl -X GET http://localhost:3000/api/companies \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Get only active companies
+curl -X GET "http://localhost:3000/api/companies?status=active" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+
+# Get only inactive companies
+curl -X GET "http://localhost:3000/api/companies?status=inactive" \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
 ```
 
@@ -363,9 +372,16 @@ console.log(updateData);
 
 **Endpoint:** `GET /`
 
-**Description:** Retrieves all companies in the system.
+**Description:** Retrieves all companies in the system. Can be filtered by status.
 
 **Authentication:** Required (JWT token)
+
+**Query Parameters:**
+- `status` (optional): Filter companies by status. Valid values: `active`, `inactive`, `suspended`
+  - Example: `GET /?status=active` - Get only active companies
+  - Example: `GET /?status=inactive` - Get only inactive companies
+  - Example: `GET /?status=suspended` - Get only suspended companies
+  - Example: `GET /` - Get all companies (no filter)
 
 **Request Body:** None required
 
@@ -405,6 +421,246 @@ console.log(updateData);
   ],
   "count": 1
 }
+```
+
+**Example Usage:**
+
+**cURL (Get All Companies):**
+```bash
+curl -X GET http://localhost:3000/api/companies \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**cURL (Get Active Companies Only):**
+```bash
+curl -X GET "http://localhost:3000/api/companies?status=active" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**cURL (Get Inactive Companies Only):**
+```bash
+curl -X GET "http://localhost:3000/api/companies?status=inactive" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**cURL (Get Suspended Companies Only):**
+```bash
+curl -X GET "http://localhost:3000/api/companies?status=suspended" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**PowerShell (Get All Companies):**
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/api/companies" -Method GET `
+  -Headers @{"Authorization"="Bearer YOUR_JWT_TOKEN"}
+```
+
+**PowerShell (Get Active Companies Only):**
+```powershell
+Invoke-RestMethod -Uri "http://localhost:3000/api/companies?status=active" -Method GET `
+  -Headers @{"Authorization"="Bearer YOUR_JWT_TOKEN"}
+```
+
+**JavaScript (Get All Companies):**
+```javascript
+const response = await fetch('http://localhost:3000/api/companies', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+  }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+**JavaScript (Get Active Companies Only):**
+```javascript
+const response = await fetch('http://localhost:3000/api/companies?status=active', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+  }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+---
+
+### 2.1. Filter Companies by Status (POST)
+
+**Endpoint:** `POST /filter`
+
+**Description:** Filters companies by status using a POST request with request body. Useful for more complex filtering scenarios.
+
+**Authentication:** Required (JWT token)
+
+**Request Body:**
+```json
+{
+  "status": "string (optional, one of: active, inactive, suspended)"
+}
+```
+
+**Request Body Fields:**
+- `status` (optional): Filter companies by status. Valid values: `active`, `inactive`, `suspended`
+  - If not provided, returns all companies
+  - If provided, returns only companies with matching status
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Companies filtered by status: active",
+  "data": [
+    {
+      "_id": "68f210dae0021a8a2431defc",
+      "company_name": "Local Services Inc",
+      "company_email": "contact@localservices.com",
+      "company_phone": "1234567891",
+      "company_address": {
+        "street": "321 Main Street",
+        "city": "Anytown",
+        "state": "ST",
+        "country": "USA",
+        "zipCode": "12345"
+      },
+      "company_logo": null,
+      "company_website": null,
+      "gstNumber": null,
+      "fiscalYear": null,
+      "industries": null,
+      "constitution_of_business": null,
+      "tdsApplicable": false,
+      "status": "active",
+      "created_by": {
+        "_id": "68f1df75eb4191c9a3610f08",
+        "name": "superadmin",
+        "email": "superadmin@gmail.com"
+      },
+      "createdAt": "2025-10-17T09:48:10.094Z",
+      "updatedAt": "2025-10-17T09:48:10.094Z"
+    }
+  ],
+  "count": 1,
+  "filter": "active"
+}
+```
+
+**Error Responses:**
+
+**400 - Invalid Status:**
+```json
+{
+  "success": false,
+  "message": "Invalid status value. Must be one of: active, inactive, suspended"
+}
+```
+
+**400 - Request Body Required:**
+```json
+{
+  "success": false,
+  "message": "Request body is required"
+}
+```
+
+**Example Usage:**
+
+**cURL (Filter Active Companies):**
+```bash
+curl -X POST http://localhost:3000/api/companies/filter \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "active"}'
+```
+
+**cURL (Filter Inactive Companies):**
+```bash
+curl -X POST http://localhost:3000/api/companies/filter \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "inactive"}'
+```
+
+**cURL (Filter Suspended Companies):**
+```bash
+curl -X POST http://localhost:3000/api/companies/filter \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"status": "suspended"}'
+```
+
+**cURL (Get All Companies - No Filter):**
+```bash
+curl -X POST http://localhost:3000/api/companies/filter \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{}'
+```
+
+**PowerShell (Filter Active Companies):**
+```powershell
+$body = @{
+    status = "active"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:3000/api/companies/filter" -Method POST `
+  -Headers @{
+    "Authorization"="Bearer YOUR_JWT_TOKEN"
+    "Content-Type"="application/json"
+  } `
+  -Body $body
+```
+
+**PowerShell (Filter Inactive Companies):**
+```powershell
+$body = @{
+    status = "inactive"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:3000/api/companies/filter" -Method POST `
+  -Headers @{
+    "Authorization"="Bearer YOUR_JWT_TOKEN"
+    "Content-Type"="application/json"
+  } `
+  -Body $body
+```
+
+**JavaScript (Filter Active Companies):**
+```javascript
+const response = await fetch('http://localhost:3000/api/companies/filter', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    status: 'active'
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+**JavaScript (Filter Inactive Companies):**
+```javascript
+const response = await fetch('http://localhost:3000/api/companies/filter', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    status: 'inactive'
+  })
+});
+
+const data = await response.json();
+console.log(data);
 ```
 
 ---

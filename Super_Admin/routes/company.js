@@ -3,7 +3,8 @@ const router = express.Router();
 
 const { 
   createCompany, 
-  getAllCompanies, 
+  getAllCompanies,
+  filterCompanies,
   getCompanyById, 
   updateCompany, 
   deleteCompany, 
@@ -15,7 +16,8 @@ const { handleUpload } = require('../middleware/upload');
 const { 
   createCompanySchema, 
   updateCompanySchema, 
-  updateCompanyStatusSchema 
+  updateCompanyStatusSchema,
+  filterCompaniesSchema
 } = require('../validations/companyValidation');
 
 // All routes require authentication
@@ -26,6 +28,9 @@ router.post('/create', auth, handleUpload, validate(createCompanySchema), create
 
 // Get All Companies
 router.get('/', getAllCompanies);
+
+// Filter Companies by Status (POST)
+router.post('/filter', validate(filterCompaniesSchema), filterCompanies);
 
 // Get Company by ID
 router.get('/:id', getCompanyById);

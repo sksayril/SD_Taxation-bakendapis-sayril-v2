@@ -129,7 +129,20 @@ exports.createCompany = async (req, res) => {
 // ✅ Get All Companies
 exports.getAllCompanies = async (req, res) => {
   try {
-    const companies = await Company.find()
+    // Get query parameters for filtering
+    const { status } = req.query;
+    
+    // Build query object
+    const query = {};
+    if (status) {
+      // Validate status value
+      const validStatuses = ['active', 'inactive', 'suspended'];
+      if (validStatuses.includes(status)) {
+        query.status = status;
+      }
+    }
+
+    const companies = await Company.find(query)
       .populate('created_by', 'name email')
       .sort({ createdAt: -1 });
 
@@ -162,6 +175,72 @@ exports.getAllCompanies = async (req, res) => {
     });
   } catch (err) {
     console.error('Get companies error:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+// ✅ Filter Companies by Status (POST)
+exports.filterCompanies = async (req, res) => {
+  try {
+    // Defensive check for req.body
+    if (!req.body) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Request body is required' 
+      });
+    }
+
+    const { status } = req.body;
+    
+    // Build query object
+    const query = {};
+    if (status) {
+      // Validate status value
+      const validStatuses = ['active', 'inactive', 'suspended'];
+      if (validStatuses.includes(status)) {
+        query.status = status;
+      } else {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid status value. Must be one of: active, inactive, suspended'
+        });
+      }
+    }
+
+    const companies = await Company.find(query)
+      .populate('created_by', 'name email')
+      .sort({ createdAt: -1 });
+
+    // Format response in compact format
+    const formattedCompanies = companies.map(company => ({
+      _id: company._id,
+      company_name: company.company_name,
+      company_email: company.company_email,
+      company_phone: company.company_phone,
+      company_address: company.company_address,
+      company_logo: company.company_logo,
+      company_website: company.company_website,
+      gstNumber: company.gstNumber,
+      fiscalYear: company.fiscalYear,
+      industries: company.industries,
+      constitution_of_business: company.constitution_of_business,
+      tdsApplicable: company.tdsApplicable,
+      status: company.status,
+      created_by: company.created_by,
+      createdAt: company.createdAt,
+      updatedAt: company.updatedAt,
+      __v: company.__v
+    }));
+
+    res.json({
+      success: true,
+      message: `Companies filtered by status: ${status || 'all'}`,
+      data: formattedCompanies,
+      count: formattedCompanies.length,
+      filter: status || 'all'
+    });
+  } catch (err) {
+    console.error('Filter companies error:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };
