@@ -143,6 +143,9 @@ exports.updateCompanySchema = Joi.object({
 
 // Filter Companies Schema
 exports.filterCompaniesSchema = Joi.object({
+  company_id: Joi.string().optional().messages({
+    'string.base': 'Company ID must be a string'
+  }),
   status: Joi.string().valid('active', 'inactive', 'suspended').optional().messages({
     'any.only': 'Status must be one of: active, inactive, suspended'
   })

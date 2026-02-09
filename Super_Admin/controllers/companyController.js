@@ -190,10 +190,17 @@ exports.filterCompanies = async (req, res) => {
       });
     }
 
-    const { status } = req.body;
+    const { status, company_id } = req.body;
     
     // Build query object
     const query = {};
+    
+    // Filter by company_id if provided
+    if (company_id) {
+      query._id = company_id;
+    }
+    
+    // Filter by status if provided
     if (status) {
       // Validate status value
       const validStatuses = ['active', 'inactive', 'suspended'];
@@ -232,12 +239,21 @@ exports.filterCompanies = async (req, res) => {
       __v: company.__v
     }));
 
+    // Build filter description for response
+    let filterDescription = [];
+    if (company_id) filterDescription.push(`company_id: ${company_id}`);
+    if (status) filterDescription.push(`status: ${status}`);
+    const filterText = filterDescription.length > 0 ? filterDescription.join(', ') : 'all';
+
     res.json({
       success: true,
-      message: `Companies filtered by status: ${status || 'all'}`,
+      message: `Companies filtered by: ${filterText}`,
       data: formattedCompanies,
       count: formattedCompanies.length,
-      filter: status || 'all'
+      filter: {
+        company_id: company_id || null,
+        status: status || null
+      }
     });
   } catch (err) {
     console.error('Filter companies error:', err);

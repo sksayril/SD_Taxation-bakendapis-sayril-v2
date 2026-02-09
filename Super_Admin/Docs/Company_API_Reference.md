@@ -500,20 +500,25 @@ console.log(data);
 **Request Body:**
 ```json
 {
+  "company_id": "string (optional, MongoDB ObjectId)",
   "status": "string (optional, one of: active, inactive, suspended)"
 }
 ```
 
 **Request Body Fields:**
+- `company_id` (optional): Filter by specific company ID. Must be a valid MongoDB ObjectId
+  - If provided, returns only the company with matching ID (if status is also provided, it will filter by both)
+  - If not provided, returns all companies (or filtered by status if status is provided)
 - `status` (optional): Filter companies by status. Valid values: `active`, `inactive`, `suspended`
-  - If not provided, returns all companies
+  - If not provided, returns all companies (or filtered by company_id if company_id is provided)
   - If provided, returns only companies with matching status
+  - Can be combined with `company_id` to check if a specific company has a specific status
 
 **Success Response (200):**
 ```json
 {
   "success": true,
-  "message": "Companies filtered by status: active",
+  "message": "Companies filtered by: company_id: 68f210dae0021a8a2431defc, status: active",
   "data": [
     {
       "_id": "68f210dae0021a8a2431defc",
@@ -545,7 +550,10 @@ console.log(data);
     }
   ],
   "count": 1,
-  "filter": "active"
+  "filter": {
+    "company_id": "68f210dae0021a8a2431defc",
+    "status": "active"
+  }
 }
 ```
 
@@ -585,12 +593,28 @@ curl -X POST http://localhost:3000/api/companies/filter \
   -d '{"status": "inactive"}'
 ```
 
-**cURL (Filter Suspended Companies):**
+**cURL (Filter by Company ID and Status - Active):**
 ```bash
 curl -X POST http://localhost:3000/api/companies/filter \
   -H "Authorization: Bearer YOUR_JWT_TOKEN" \
   -H "Content-Type: application/json" \
-  -d '{"status": "suspended"}'
+  -d '{"company_id": "68f210dae0021a8a2431defc", "status": "active"}'
+```
+
+**cURL (Filter by Company ID and Status - Inactive):**
+```bash
+curl -X POST http://localhost:3000/api/companies/filter \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"company_id": "68f210dae0021a8a2431defc", "status": "inactive"}'
+```
+
+**cURL (Filter by Company ID Only):**
+```bash
+curl -X POST http://localhost:3000/api/companies/filter \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"company_id": "68f210dae0021a8a2431defc"}'
 ```
 
 **cURL (Get All Companies - No Filter):**
@@ -615,9 +639,25 @@ Invoke-RestMethod -Uri "http://localhost:3000/api/companies/filter" -Method POST
   -Body $body
 ```
 
-**PowerShell (Filter Inactive Companies):**
+**PowerShell (Filter by Company ID and Status - Active):**
 ```powershell
 $body = @{
+    company_id = "68f210dae0021a8a2431defc"
+    status = "active"
+} | ConvertTo-Json
+
+Invoke-RestMethod -Uri "http://localhost:3000/api/companies/filter" -Method POST `
+  -Headers @{
+    "Authorization"="Bearer YOUR_JWT_TOKEN"
+    "Content-Type"="application/json"
+  } `
+  -Body $body
+```
+
+**PowerShell (Filter by Company ID and Status - Inactive):**
+```powershell
+$body = @{
+    company_id = "68f210dae0021a8a2431defc"
     status = "inactive"
 } | ConvertTo-Json
 
@@ -646,7 +686,7 @@ const data = await response.json();
 console.log(data);
 ```
 
-**JavaScript (Filter Inactive Companies):**
+**JavaScript (Filter by Company ID and Status - Active):**
 ```javascript
 const response = await fetch('http://localhost:3000/api/companies/filter', {
   method: 'POST',
@@ -655,7 +695,43 @@ const response = await fetch('http://localhost:3000/api/companies/filter', {
     'Content-Type': 'application/json'
   },
   body: JSON.stringify({
+    company_id: '68f210dae0021a8a2431defc',
+    status: 'active'
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+**JavaScript (Filter by Company ID and Status - Inactive):**
+```javascript
+const response = await fetch('http://localhost:3000/api/companies/filter', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    company_id: '68f210dae0021a8a2431defc',
     status: 'inactive'
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+**JavaScript (Filter by Company ID Only):**
+```javascript
+const response = await fetch('http://localhost:3000/api/companies/filter', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    company_id: '68f210dae0021a8a2431defc'
   })
 });
 
