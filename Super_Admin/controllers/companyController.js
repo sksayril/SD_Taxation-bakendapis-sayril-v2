@@ -22,7 +22,16 @@ exports.createCompany = async (req, res) => {
       fiscalYear,
       industries,
       constitution_of_business,
-      tdsApplicable
+      tdsApplicable,
+      tdsNumber,
+      professional,
+      professionalNumber,
+      epf,
+      epfNumber,
+      pf,
+      pfNumber,
+      esic,
+      esicNumber
     } = req.body;
 
 
@@ -73,15 +82,20 @@ exports.createCompany = async (req, res) => {
       });
     }
 
-    // Parse tdsApplicable if it's a string (from form data)
-    let parsedTdsApplicable = false;
-    if (tdsApplicable !== undefined && tdsApplicable !== null) {
-      if (typeof tdsApplicable === 'string') {
-        parsedTdsApplicable = tdsApplicable.toLowerCase() === 'true';
-      } else {
-        parsedTdsApplicable = Boolean(tdsApplicable);
+    // Parse boolean fields if they're strings (from form data)
+    const parseBoolean = (value) => {
+      if (value === undefined || value === null) return false;
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
       }
-    }
+      return Boolean(value);
+    };
+
+    const parsedTdsApplicable = parseBoolean(tdsApplicable);
+    const parsedProfessional = parseBoolean(professional);
+    const parsedEpf = parseBoolean(epf);
+    const parsedPf = parseBoolean(pf);
+    const parsedEsic = parseBoolean(esic);
 
     // Create new company
     const company = await Company.create({
@@ -96,6 +110,15 @@ exports.createCompany = async (req, res) => {
       industries: industries || null,
       constitution_of_business: constitution_of_business || null,
       tdsApplicable: parsedTdsApplicable,
+      tdsNumber: parsedTdsApplicable ? (tdsNumber || null) : null,
+      professional: parsedProfessional,
+      professionalNumber: parsedProfessional ? (professionalNumber || null) : null,
+      epf: parsedEpf,
+      epfNumber: parsedEpf ? (epfNumber || null) : null,
+      pf: parsedPf,
+      pfNumber: parsedPf ? (pfNumber || null) : null,
+      esic: parsedEsic,
+      esicNumber: parsedEsic ? (esicNumber || null) : null,
       created_by: req.user.id
     });
 
@@ -116,6 +139,15 @@ exports.createCompany = async (req, res) => {
         industries: company.industries,
         constitution_of_business: company.constitution_of_business,
         tdsApplicable: company.tdsApplicable,
+        tdsNumber: company.tdsNumber,
+        professional: company.professional,
+        professionalNumber: company.professionalNumber,
+        epf: company.epf,
+        epfNumber: company.epfNumber,
+        pf: company.pf,
+        pfNumber: company.pfNumber,
+        esic: company.esic,
+        esicNumber: company.esicNumber,
         status: company.status,
         created_at: company.createdAt
       }
@@ -232,6 +264,15 @@ exports.filterCompanies = async (req, res) => {
       industries: company.industries,
       constitution_of_business: company.constitution_of_business,
       tdsApplicable: company.tdsApplicable,
+      tdsNumber: company.tdsNumber,
+      professional: company.professional,
+      professionalNumber: company.professionalNumber,
+      epf: company.epf,
+      epfNumber: company.epfNumber,
+      pf: company.pf,
+      pfNumber: company.pfNumber,
+      esic: company.esic,
+      esicNumber: company.esicNumber,
       status: company.status,
       created_by: company.created_by,
       createdAt: company.createdAt,
@@ -347,12 +388,50 @@ exports.updateCompany = async (req, res) => {
       }
     }
 
-    // Parse tdsApplicable if it's a string (from form data)
-    if (updateData.tdsApplicable !== undefined && updateData.tdsApplicable !== null) {
-      if (typeof updateData.tdsApplicable === 'string') {
-        updateData.tdsApplicable = updateData.tdsApplicable.toLowerCase() === 'true';
-      } else {
-        updateData.tdsApplicable = Boolean(updateData.tdsApplicable);
+    // Parse boolean fields if they're strings (from form data)
+    const parseBoolean = (value) => {
+      if (value === undefined || value === null) return undefined;
+      if (typeof value === 'string') {
+        return value.toLowerCase() === 'true';
+      }
+      return Boolean(value);
+    };
+
+    if (updateData.tdsApplicable !== undefined) {
+      updateData.tdsApplicable = parseBoolean(updateData.tdsApplicable);
+      // If tdsApplicable is false, clear tdsNumber
+      if (!updateData.tdsApplicable) {
+        updateData.tdsNumber = null;
+      } else if (updateData.tdsNumber === undefined && !updateData.tdsApplicable) {
+        updateData.tdsNumber = null;
+      }
+    }
+
+    if (updateData.professional !== undefined) {
+      updateData.professional = parseBoolean(updateData.professional);
+      if (!updateData.professional) {
+        updateData.professionalNumber = null;
+      }
+    }
+
+    if (updateData.epf !== undefined) {
+      updateData.epf = parseBoolean(updateData.epf);
+      if (!updateData.epf) {
+        updateData.epfNumber = null;
+      }
+    }
+
+    if (updateData.pf !== undefined) {
+      updateData.pf = parseBoolean(updateData.pf);
+      if (!updateData.pf) {
+        updateData.pfNumber = null;
+      }
+    }
+
+    if (updateData.esic !== undefined) {
+      updateData.esic = parseBoolean(updateData.esic);
+      if (!updateData.esic) {
+        updateData.esicNumber = null;
       }
     }
 

@@ -80,6 +80,33 @@ exports.createCompanySchema = Joi.object({
   }),
   tdsApplicable: Joi.boolean().optional().messages({
     'boolean.base': 'TDS Applicable must be a boolean value (true or false)'
+  }),
+  tdsNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'TDS Number must be a string'
+  }),
+  professional: Joi.boolean().optional().messages({
+    'boolean.base': 'Professional must be a boolean value (true or false)'
+  }),
+  professionalNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'Professional Number must be a string'
+  }),
+  epf: Joi.boolean().optional().messages({
+    'boolean.base': 'EPF must be a boolean value (true or false)'
+  }),
+  epfNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'EPF Number must be a string'
+  }),
+  pf: Joi.boolean().optional().messages({
+    'boolean.base': 'PF must be a boolean value (true or false)'
+  }),
+  pfNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'PF Number must be a string'
+  }),
+  esic: Joi.boolean().optional().messages({
+    'boolean.base': 'ESIC must be a boolean value (true or false)'
+  }),
+  esicNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'ESIC Number must be a string'
   })
 });
 
@@ -138,6 +165,33 @@ exports.updateCompanySchema = Joi.object({
   }),
   tdsApplicable: Joi.boolean().optional().messages({
     'boolean.base': 'TDS Applicable must be a boolean value (true or false)'
+  }),
+  tdsNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'TDS Number must be a string'
+  }),
+  professional: Joi.boolean().optional().messages({
+    'boolean.base': 'Professional must be a boolean value (true or false)'
+  }),
+  professionalNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'Professional Number must be a string'
+  }),
+  epf: Joi.boolean().optional().messages({
+    'boolean.base': 'EPF must be a boolean value (true or false)'
+  }),
+  epfNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'EPF Number must be a string'
+  }),
+  pf: Joi.boolean().optional().messages({
+    'boolean.base': 'PF must be a boolean value (true or false)'
+  }),
+  pfNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'PF Number must be a string'
+  }),
+  esic: Joi.boolean().optional().messages({
+    'boolean.base': 'ESIC must be a boolean value (true or false)'
+  }),
+  esicNumber: Joi.string().optional().allow('').messages({
+    'string.base': 'ESIC Number must be a string'
   })
 });
 

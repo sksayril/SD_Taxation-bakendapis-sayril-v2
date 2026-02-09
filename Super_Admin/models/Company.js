@@ -95,6 +95,47 @@ const CompanySchema = new mongoose.Schema(
             type: Boolean,
             default: false
         },
+        tdsNumber: {
+            type: String,
+            trim: true,
+            default: null
+        },
+        professional: {
+            type: Boolean,
+            default: false
+        },
+        professionalNumber: {
+            type: String,
+            trim: true,
+            default: null
+        },
+        epf: {
+            type: Boolean,
+            default: false
+        },
+        epfNumber: {
+            type: String,
+            trim: true,
+            default: null
+        },
+        pf: {
+            type: Boolean,
+            default: false
+        },
+        pfNumber: {
+            type: String,
+            trim: true,
+            default: null
+        },
+        esic: {
+            type: Boolean,
+            default: false
+        },
+        esicNumber: {
+            type: String,
+            trim: true,
+            default: null
+        },
         created_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SuperAdmin',

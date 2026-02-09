@@ -74,6 +74,15 @@ curl -X GET "http://localhost:3000/api/companies?status=inactive" \
   - `industries`: String (optional, max 500 characters)
   - `constitution_of_business`: String (optional, max 500 characters)
   - `tdsApplicable`: Boolean (optional, true/false - TDS Applicable toggle)
+  - `tdsNumber`: String (optional, required if tdsApplicable is true)
+  - `professional`: Boolean (optional, true/false - Professional toggle)
+  - `professionalNumber`: String (optional, required if professional is true)
+  - `epf`: Boolean (optional, true/false - EPF toggle)
+  - `epfNumber`: String (optional, required if epf is true)
+  - `pf`: Boolean (optional, true/false - PF toggle)
+  - `pfNumber`: String (optional, required if pf is true)
+  - `esic`: Boolean (optional, true/false - ESIC toggle)
+  - `esicNumber`: String (optional, required if esic is true)
 
 **Example Form Data:**
 ```
@@ -88,6 +97,15 @@ fiscalYear: "2024-2025"
 industries: "Technology, Software Development, IT Services"
 constitution_of_business: "Private Limited Company"
 tdsApplicable: true
+tdsNumber: "TDS123456789"
+professional: true
+professionalNumber: "PROF123456"
+epf: true
+epfNumber: "EPF123456789"
+pf: true
+pfNumber: "PF123456789"
+esic: true
+esicNumber: "ESIC123456789"
 ```
 
 **Validation Rules:**
@@ -107,6 +125,15 @@ tdsApplicable: true
 - `industries`: Optional, string format, max 500 characters
 - `constitution_of_business`: Optional, string format, max 500 characters
 - `tdsApplicable`: Optional, boolean (true/false) - TDS Applicable toggle button
+- `tdsNumber`: Optional, string - TDS Number (required if tdsApplicable is true)
+- `professional`: Optional, boolean (true/false) - Professional toggle button
+- `professionalNumber`: Optional, string - Professional Number (required if professional is true)
+- `epf`: Optional, boolean (true/false) - EPF toggle button
+- `epfNumber`: Optional, string - EPF Number (required if epf is true)
+- `pf`: Optional, boolean (true/false) - PF toggle button
+- `pfNumber`: Optional, string - PF Number (required if pf is true)
+- `esic`: Optional, boolean (true/false) - ESIC toggle button
+- `esicNumber`: Optional, string - ESIC Number (required if esic is true)
 
 **Success Response (201):**
 ```json
@@ -132,6 +159,15 @@ tdsApplicable: true
     "industries": "Technology, Software Development, IT Services",
     "constitution_of_business": "Private Limited Company",
     "tdsApplicable": true,
+    "tdsNumber": "TDS123456789",
+    "professional": true,
+    "professionalNumber": "PROF123456",
+    "epf": true,
+    "epfNumber": "EPF123456789",
+    "pf": true,
+    "pfNumber": "PF123456789",
+    "esic": true,
+    "esicNumber": "ESIC123456789",
     "status": "active",
     "created_at": "2024-12-17T10:30:00.000Z"
   }
