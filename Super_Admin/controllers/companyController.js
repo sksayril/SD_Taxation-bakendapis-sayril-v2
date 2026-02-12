@@ -229,6 +229,14 @@ exports.filterCompanies = async (req, res) => {
     
     // Filter by company_id if provided
     if (company_id) {
+      // Validate ObjectId format (24 hex characters)
+      const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+      if (!objectIdPattern.test(company_id)) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid company_id format. Must be a valid MongoDB ObjectId'
+        });
+      }
       query._id = company_id;
     }
     
@@ -246,6 +254,69 @@ exports.filterCompanies = async (req, res) => {
       }
     }
 
+    // If both company_id and status are provided, update the company status
+    if (company_id && status) {
+      const company = await Company.findById(company_id);
+      
+      if (!company) {
+        return res.status(404).json({
+          success: false,
+          message: 'Company not found'
+        });
+      }
+
+      // Update company status
+      company.status = status;
+      await company.save();
+
+      // Fetch updated company with populated fields
+      const updatedCompany = await Company.findById(company_id)
+        .populate('created_by', 'name email');
+
+      // Format response
+      const formattedCompany = {
+        _id: updatedCompany._id,
+        company_name: updatedCompany.company_name,
+        company_email: updatedCompany.company_email,
+        company_phone: updatedCompany.company_phone,
+        company_address: updatedCompany.company_address,
+        company_logo: updatedCompany.company_logo,
+        company_website: updatedCompany.company_website,
+        gstNumber: updatedCompany.gstNumber,
+        fiscalYear: updatedCompany.fiscalYear,
+        industries: updatedCompany.industries,
+        constitution_of_business: updatedCompany.constitution_of_business,
+        tdsApplicable: updatedCompany.tdsApplicable,
+        tdsNumber: updatedCompany.tdsNumber,
+        professional: updatedCompany.professional,
+        professionalNumber: updatedCompany.professionalNumber,
+        epf: updatedCompany.epf,
+        epfNumber: updatedCompany.epfNumber,
+        pf: updatedCompany.pf,
+        pfNumber: updatedCompany.pfNumber,
+        esic: updatedCompany.esic,
+        esicNumber: updatedCompany.esicNumber,
+        status: updatedCompany.status,
+        created_by: updatedCompany.created_by,
+        createdAt: updatedCompany.createdAt,
+        updatedAt: updatedCompany.updatedAt,
+        __v: updatedCompany.__v
+      };
+
+      return res.json({
+        success: true,
+        message: `Company status updated to ${status} and filtered successfully`,
+        data: [formattedCompany],
+        count: 1,
+        filter: {
+          company_id: company_id,
+          status: status
+        },
+        updated: true
+      });
+    }
+
+    // Otherwise, just filter without updating
     const companies = await Company.find(query)
       .populate('created_by', 'name email')
       .sort({ createdAt: -1 });
@@ -294,7 +365,8 @@ exports.filterCompanies = async (req, res) => {
       filter: {
         company_id: company_id || null,
         status: status || null
-      }
+      },
+      updated: false
     });
   } catch (err) {
     console.error('Filter companies error:', err);

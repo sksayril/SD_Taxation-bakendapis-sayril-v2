@@ -42,7 +42,33 @@ exports.createAdminSchema = Joi.object({
   company: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).required().messages({
     'string.empty': 'Company ID is required',
     'string.pattern.base': 'Company ID must be a valid MongoDB ObjectId'
-  })
+  }),
+  permissions: Joi.object({
+    hrm: Joi.object({
+      create: Joi.boolean().optional(),
+      read: Joi.boolean().optional(),
+      update: Joi.boolean().optional(),
+      delete: Joi.boolean().optional()
+    }).optional(),
+    crm: Joi.object({
+      create: Joi.boolean().optional(),
+      read: Joi.boolean().optional(),
+      update: Joi.boolean().optional(),
+      delete: Joi.boolean().optional()
+    }).optional(),
+    erp: Joi.object({
+      create: Joi.boolean().optional(),
+      read: Joi.boolean().optional(),
+      update: Joi.boolean().optional(),
+      delete: Joi.boolean().optional()
+    }).optional(),
+    payroll: Joi.object({
+      create: Joi.boolean().optional(),
+      read: Joi.boolean().optional(),
+      update: Joi.boolean().optional(),
+      delete: Joi.boolean().optional()
+    }).optional()
+  }).optional()
 });
 
 // Update Admin Schema
@@ -83,5 +109,26 @@ exports.loginSchema = Joi.object({
   }),
   password: Joi.string().required().messages({
     'string.empty': 'Password is required'
+  })
+});
+
+// Update Permissions Schema
+const modulePermissionSchema = Joi.object({
+  access: Joi.boolean().required(),
+  canCreate: Joi.boolean().required(),
+  canRead: Joi.boolean().required(),
+  canUpdate: Joi.boolean().required(),
+  canDelete: Joi.boolean().required()
+});
+
+exports.updatePermissionsSchema = Joi.object({
+  permissions: Joi.object({
+    hrm: modulePermissionSchema,
+    crm: modulePermissionSchema,
+    erp: modulePermissionSchema,
+    payroll: modulePermissionSchema
+  }).required().messages({
+    'object.base': 'Permissions must be an object',
+    'any.required': 'Permissions object is required'
   })
 });

@@ -451,6 +451,512 @@ Authorization: Bearer <jwt-token>
 
 ---
 
+### 7. Filter Companies (SuperAdmin Only)
+
+**Endpoint:** `POST /companies/filter`
+
+**Description:** Filters companies by company ID and/or status. Allows SuperAdmin to search for specific companies or filter by active/inactive/suspended status. **If both `company_id` and `status` are provided, the company's status will be updated in the database.**
+
+**Authentication:** Required (SuperAdmin JWT token)
+
+**Request Body:**
+```json
+{
+  "company_id": "string (optional, MongoDB ObjectId)",
+  "status": "string (optional, one of: active, inactive, suspended)"
+}
+```
+
+**Request Body Fields:**
+- `company_id` (optional): Filter by specific company ID. Must be a valid MongoDB ObjectId (24 hex characters)
+  - If provided alone, returns only the company with matching ID
+  - If provided with `status`, **updates the company's status** and returns the updated company
+  - If not provided, returns all companies (or filtered by status if status is provided)
+- `status` (optional): Filter companies by status. Valid values: `active`, `inactive`, `suspended`
+  - If provided alone, returns only companies with matching status
+  - If provided with `company_id`, **updates the company's status** to this value and returns the updated company
+  - If not provided, returns all companies (or filtered by company_id if company_id is provided)
+
+**Important:** When both `company_id` and `status` are provided, the endpoint will:
+1. Find the company by ID
+2. Update its status to the provided status value
+3. Return the updated company data
+
+**Success Response (200) - When both company_id and status are provided (Status Updated):**
+```json
+{
+  "success": true,
+  "message": "Company status updated to inactive and filtered successfully",
+  "data": [
+    {
+      "_id": "698c78c63416024b097cb6fb",
+      "company_name": "Local Services Inc",
+      "company_email": "contact@localservices.com",
+      "company_phone": "1234567891",
+      "company_address": {
+        "street": "321 Main Street",
+        "city": "Anytown",
+        "state": "ST",
+        "country": "USA",
+        "zipCode": "12345"
+      },
+      "company_logo": null,
+      "company_website": null,
+      "gstNumber": null,
+      "fiscalYear": null,
+      "industries": null,
+      "constitution_of_business": null,
+      "tdsApplicable": false,
+      "tdsNumber": null,
+      "professional": false,
+      "professionalNumber": null,
+      "epf": false,
+      "epfNumber": null,
+      "pf": false,
+      "pfNumber": null,
+      "esic": false,
+      "esicNumber": null,
+      "status": "inactive",
+      "created_by": {
+        "_id": "68f1df75eb4191c9a3610f08",
+        "name": "superadmin",
+        "email": "superadmin@gmail.com"
+      },
+      "createdAt": "2025-10-17T09:48:10.094Z",
+      "updatedAt": "2025-10-17T10:30:00.000Z",
+      "__v": 0
+    }
+  ],
+  "count": 1,
+  "filter": {
+    "company_id": "698c78c63416024b097cb6fb",
+    "status": "inactive"
+  },
+  "updated": true
+}
+```
+
+**Success Response (200) - When filtering only (No Update):**
+```json
+{
+  "success": true,
+  "message": "Companies filtered by: status: active",
+  "data": [
+    {
+      "_id": "68f210dae0021a8a2431defc",
+      "company_name": "Local Services Inc",
+      "company_email": "contact@localservices.com",
+      "company_phone": "1234567891",
+      "company_address": {
+        "street": "321 Main Street",
+        "city": "Anytown",
+        "state": "ST",
+        "country": "USA",
+        "zipCode": "12345"
+      },
+      "company_logo": null,
+      "company_website": null,
+      "gstNumber": null,
+      "fiscalYear": null,
+      "industries": null,
+      "constitution_of_business": null,
+      "tdsApplicable": false,
+      "tdsNumber": null,
+      "professional": false,
+      "professionalNumber": null,
+      "epf": false,
+      "epfNumber": null,
+      "pf": false,
+      "pfNumber": null,
+      "esic": false,
+      "esicNumber": null,
+      "status": "active",
+      "created_by": {
+        "_id": "68f1df75eb4191c9a3610f08",
+        "name": "superadmin",
+        "email": "superadmin@gmail.com"
+      },
+      "createdAt": "2025-10-17T09:48:10.094Z",
+      "updatedAt": "2025-10-17T09:48:10.094Z",
+      "__v": 0
+    }
+  ],
+  "count": 1,
+  "filter": {
+    "company_id": null,
+    "status": "active"
+  },
+  "updated": false
+}
+```
+
+**Example Requests:**
+
+**Filter by Status Only (Active Companies):**
+```json
+{
+  "status": "active"
+}
+```
+
+**Filter by Status Only (Inactive Companies):**
+```json
+{
+  "status": "inactive"
+}
+```
+
+**Filter by Company ID Only:**
+```json
+{
+  "company_id": "68f210dae0021a8a2431defc"
+}
+```
+
+**Filter by Both Company ID and Status (Updates Company Status):**
+```json
+{
+  "company_id": "698c78c63416024b097cb6fb",
+  "status": "inactive"
+}
+```
+**Note:** This will update the company's status to "inactive" in the database and return the updated company.
+
+**Get All Companies (No Filters):**
+```json
+{}
+```
+
+**Error Responses:**
+
+**400 - Invalid Status:**
+```json
+{
+  "success": false,
+  "message": "Invalid status value. Must be one of: active, inactive, suspended"
+}
+```
+
+**400 - Invalid Company ID Format:**
+```json
+{
+  "success": false,
+  "message": "Invalid company_id format. Must be a valid MongoDB ObjectId"
+}
+```
+
+**400 - Request Body Required:**
+```json
+{
+  "success": false,
+  "message": "Request body is required"
+}
+```
+
+**404 - Company Not Found (when updating status):**
+```json
+{
+  "success": false,
+  "message": "Company not found"
+}
+```
+
+**401 - Unauthorized:**
+```json
+{
+  "success": false,
+  "message": "No token provided"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X POST "http://localhost:3000/api/superadmin/companies/filter" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "status": "active",
+    "company_id": "68f210dae0021a8a2431defc"
+  }'
+```
+
+**JavaScript Example:**
+```javascript
+const response = await fetch('http://localhost:3000/api/superadmin/companies/filter', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    status: 'active',
+    company_id: '68f210dae0021a8a2431defc'
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+---
+
+### 8. Create Admin (SuperAdmin Only)
+
+**Endpoint:** `POST /create-admin`
+
+**Description:** Creates a new Admin user for a company with optional module permissions. SuperAdmin can assign specific permissions for HRM, CRM, ERP, and Payroll modules.
+
+**Authentication:** Required (SuperAdmin JWT token)
+
+**Request Body:**
+```json
+{
+  "fullname": "Test User",
+  "username": "testuser",
+  "email": "testuser1@gmail.com",
+  "role": "Admin",
+  "password": "password123",
+  "originalPassword": "password123",
+  "phone": "1234567895",
+  "adminArea": "kolkata",
+  "company": "698c78c63416024b097cb6fb",
+  "permissions": {
+    "hrm": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    },
+    "payroll": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    },
+    "crm": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    },
+    "erp": {
+      "create": true,
+      "read": true,
+      "update": true,
+      "delete": true
+    }
+  }
+}
+```
+
+**Request Body Fields:**
+- `fullname` (required): Admin's full name (2-100 characters)
+- `username` (required): Unique username (3-50 characters, alphanumeric)
+- `email` (required): Valid email address (unique)
+- `role` (required): Must be "Admin"
+- `password` (required): Password (minimum 6 characters, stored in plain text)
+- `originalPassword` (required): Same as password (minimum 6 characters)
+- `phone` (required): Phone number (10-20 characters)
+- `adminArea` (required): Admin area/location (2-100 characters)
+- `company` (required): Company ID (valid MongoDB ObjectId)
+- `permissions` (optional): Object containing module permissions
+  - Each module (hrm, crm, erp, payroll) can have:
+    - `create` (boolean, optional): Permission to create records
+    - `read` (boolean, optional): Permission to read/view records
+    - `update` (boolean, optional): Permission to update records
+    - `delete` (boolean, optional): Permission to delete records
+  - If `access` is not provided, it's automatically set to `true` if any permission (create, read, update, delete) is `true`
+  - If a module is not provided, all permissions default to `false`
+
+**Success Response (201):**
+```json
+{
+  "success": true,
+  "message": "Admin created successfully",
+  "data": {
+    "_id": "698c78c63416024b097cb6fb",
+    "fullname": "Test User",
+    "username": "testuser",
+    "email": "testuser1@gmail.com",
+    "role": "Admin",
+    "phone": "1234567895",
+    "adminArea": "kolkata",
+    "company": "698c78c63416024b097cb6fb",
+    "status": "active",
+    "password": "password123",
+    "originalPassword": "password123",
+    "permissions": {
+      "hrm": {
+        "access": true,
+        "canCreate": true,
+        "canRead": true,
+        "canUpdate": true,
+        "canDelete": true
+      },
+      "crm": {
+        "access": true,
+        "canCreate": true,
+        "canRead": true,
+        "canUpdate": true,
+        "canDelete": true
+      },
+      "erp": {
+        "access": true,
+        "canCreate": true,
+        "canRead": true,
+        "canUpdate": true,
+        "canDelete": true
+      },
+      "payroll": {
+        "access": true,
+        "canCreate": true,
+        "canRead": true,
+        "canUpdate": true,
+        "canDelete": true
+      }
+    },
+    "createdAt": "2025-01-15T10:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+**400 - Validation Error:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": [
+    "Email is required",
+    "Please enter a valid email address"
+  ]
+}
+```
+
+**400 - Email Already Registered:**
+```json
+{
+  "success": false,
+  "message": "Email already registered"
+}
+```
+
+**400 - Username Already Taken:**
+```json
+{
+  "success": false,
+  "message": "Username already taken"
+}
+```
+
+**400 - Company Not Found:**
+```json
+{
+  "success": false,
+  "message": "Company not found"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X POST "http://localhost:3000/api/superadmin/create-admin" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullname": "Test User",
+    "username": "testuser",
+    "email": "testuser1@gmail.com",
+    "role": "Admin",
+    "password": "password123",
+    "originalPassword": "password123",
+    "phone": "1234567895",
+    "adminArea": "kolkata",
+    "company": "698c78c63416024b097cb6fb",
+    "permissions": {
+      "hrm": {
+        "create": true,
+        "read": true,
+        "update": true,
+        "delete": true
+      },
+      "payroll": {
+        "create": true,
+        "read": true,
+        "update": true,
+        "delete": true
+      },
+      "crm": {
+        "create": true,
+        "read": true,
+        "update": true,
+        "delete": true
+      },
+      "erp": {
+        "create": true,
+        "read": true,
+        "update": true,
+        "delete": true
+      }
+    }
+  }'
+```
+
+**JavaScript Example:**
+```javascript
+const response = await fetch('http://localhost:3000/api/superadmin/create-admin', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    fullname: 'Test User',
+    username: 'testuser',
+    email: 'testuser1@gmail.com',
+    role: 'Admin',
+    password: 'password123',
+    originalPassword: 'password123',
+    phone: '1234567895',
+    adminArea: 'kolkata',
+    company: '698c78c63416024b097cb6fb',
+    permissions: {
+      hrm: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true
+      },
+      payroll: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true
+      },
+      crm: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true
+      },
+      erp: {
+        create: true,
+        read: true,
+        update: true,
+        delete: true
+      }
+    }
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+**Note:** The permissions format in the request uses `create`, `read`, `update`, `delete`, but the response shows the internal format with `access`, `canCreate`, `canRead`, `canUpdate`, `canDelete`. The system automatically maps the simplified format to the database format.
+
+---
+
 ## Data Models
 
 ### SuperAdmin Model

@@ -65,6 +65,96 @@ const AdminSchema = new mongoose.Schema(
             enum: ['active', 'inactive', 'suspended'],
             default: 'active'
         },
+        permissions: {
+            hrm: {
+                access: {
+                    type: Boolean,
+                    default: false
+                },
+                canCreate: {
+                    type: Boolean,
+                    default: false
+                },
+                canRead: {
+                    type: Boolean,
+                    default: false
+                },
+                canUpdate: {
+                    type: Boolean,
+                    default: false
+                },
+                canDelete: {
+                    type: Boolean,
+                    default: false
+                }
+            },
+            crm: {
+                access: {
+                    type: Boolean,
+                    default: false
+                },
+                canCreate: {
+                    type: Boolean,
+                    default: false
+                },
+                canRead: {
+                    type: Boolean,
+                    default: false
+                },
+                canUpdate: {
+                    type: Boolean,
+                    default: false
+                },
+                canDelete: {
+                    type: Boolean,
+                    default: false
+                }
+            },
+            erp: {
+                access: {
+                    type: Boolean,
+                    default: false
+                },
+                canCreate: {
+                    type: Boolean,
+                    default: false
+                },
+                canRead: {
+                    type: Boolean,
+                    default: false
+                },
+                canUpdate: {
+                    type: Boolean,
+                    default: false
+                },
+                canDelete: {
+                    type: Boolean,
+                    default: false
+                }
+            },
+            payroll: {
+                access: {
+                    type: Boolean,
+                    default: false
+                },
+                canCreate: {
+                    type: Boolean,
+                    default: false
+                },
+                canRead: {
+                    type: Boolean,
+                    default: false
+                },
+                canUpdate: {
+                    type: Boolean,
+                    default: false
+                },
+                canDelete: {
+                    type: Boolean,
+                    default: false
+                }
+            }
+        },
         lastLogin: {
             type: Date,
             default: null

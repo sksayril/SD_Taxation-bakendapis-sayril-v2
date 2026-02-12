@@ -34,6 +34,8 @@ var adminRouter = require('./Admin/routes/admin');
 var employeeRouter = require('./Employees/routes/employee');
 var hrRouter = require('./HR/routes/adminHr');
 var payrollRouter = require('./HR/routes/payroll');
+var crmRouter = require('./CRM/routes/crm');
+var erpRouter = require('./ERP/routes/erp');
 var unifiedRouter = require('./routes/unified');
 
 app.use('/api/superadmin', superAdminRouter);
@@ -54,6 +56,8 @@ app.use('/api/employees', employeeRouter);
 app.use('/api/admin', hrRouter);
 app.use('/api/hr', hrRouter);
 app.use('/api/payroll', payrollRouter);
+app.use('/api/crm', crmRouter);
+app.use('/api/erp', erpRouter);
 
 // Unified routes (works for all user types)
 app.use('/api', unifiedRouter);

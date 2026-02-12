@@ -22,7 +22,7 @@ exports.createAdmin = async (req, res) => {
       });
     }
 
-    const { fullname, username, email, password, originalPassword, phone, adminArea, company } = req.body;
+    const { fullname, username, email, password, originalPassword, phone, adminArea, company, permissions } = req.body;
 
     // Check if email already exists
     const existingEmail = await Admin.findOne({ email });
@@ -51,9 +51,34 @@ exports.createAdmin = async (req, res) => {
       });
     }
 
+    // Map permissions from new format (create, read, update, delete) to database format (access, canCreate, canRead, canUpdate, canDelete)
+    let mappedPermissions = {};
+    if (permissions) {
+      const modules = ['hrm', 'crm', 'erp', 'payroll'];
+      modules.forEach(module => {
+        if (permissions[module]) {
+          const modulePerms = permissions[module];
+          const canCreate = modulePerms.create || false;
+          const canRead = modulePerms.read || false;
+          const canUpdate = modulePerms.update || false;
+          const canDelete = modulePerms.delete || false;
+          // Set access to true if any permission is true
+          const access = canCreate || canRead || canUpdate || canDelete;
+          
+          mappedPermissions[module] = {
+            access: access,
+            canCreate: canCreate,
+            canRead: canRead,
+            canUpdate: canUpdate,
+            canDelete: canDelete
+          };
+        }
+      });
+    }
+
     // Store password in plain text (not hashed)
     // Create admin
-    const admin = await Admin.create({
+    const adminData = {
       fullname,
       username,
       email,
@@ -63,7 +88,14 @@ exports.createAdmin = async (req, res) => {
       adminArea,
       company,
       created_by: req.user ? req.user.id : "68f210dae0021a8a2431defc" // From auth middleware or default
-    });
+    };
+
+    // Add permissions if provided
+    if (Object.keys(mappedPermissions).length > 0) {
+      adminData.permissions = mappedPermissions;
+    }
+
+    const admin = await Admin.create(adminData);
 
     // Debug: Log the created admin to see what was actually saved
     console.log('Created admin password:', admin.password);
@@ -77,7 +109,7 @@ exports.createAdmin = async (req, res) => {
     console.log('Admin from DB originalPassword:', adminFromDB.originalPassword);
 
     // Return admin data (including originalPassword for SuperAdmin)
-    const adminData = {
+    const adminResponse = {
       _id: admin._id,
       fullname: admin.fullname,
       username: admin.username,
@@ -90,13 +122,14 @@ exports.createAdmin = async (req, res) => {
       status: admin.status,
       password: admin.password, // Include plain text password
       originalPassword: admin.originalPassword, // Include original password
+      permissions: admin.permissions || {},
       createdAt: admin.createdAt
     };
 
     res.status(201).json({
       success: true,
       message: "Admin created successfully",
-      data: adminData
+      data: adminResponse
     });
   } catch (err) {
     console.error('Create admin error:', err);

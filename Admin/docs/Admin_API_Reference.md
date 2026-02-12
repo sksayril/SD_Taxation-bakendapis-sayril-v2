@@ -6,61 +6,12 @@ http://localhost:3000/api/admin
 ```
 
 ## Authentication
-All Admin endpoints require JWT authentication with SuperAdmin role. Include the token in the Authorization header:
+All Admin endpoints require JWT authentication. Include the token in the Authorization header:
 ```
 Authorization: Bearer <jwt-token>
 ```
 
----
-
-## Endpoints
-
-### 1. Admin Login
-
-**Endpoint:** `POST /login`
-
-**Description:** Authenticates an Admin user and returns a JWT token.
-
-**Authentication:** Not required
-
-**Request Body:**
-```json
-{
-  "email": "string (required, valid email)",
-  "password": "string (required)"
-}
-```
-
-**Validation Rules:**
-- `email`: Required, valid email format
-- `password`: Required
-
-**Success Response (200):**
-```json
-{
-  "success": true,
-  "message": "Login successful",
-  "data": {
-    "_id": "6710f9f0a8b2e0f49d9d3d12",
-    "fullname": "John Doe",
-    "username": "john_admin",
-    "email": "john@example.com",
-    "role": "Admin",
-    "phone": "+919876543210",
-    "adminArea": "Mumbai",
-    "company": {
-      "_id": "66f3a9abbb1234567890abcd",
-      "company_name": "ABC Corp",
-      "company_email": "contact@abccorp.com"
-    },
-    "status": "active",
-    "lastLogin": "2025-01-17T16:30:15.123Z"
-  },
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-}
-```
-
-**Error Responses:**
+**Note:** Most endpoints require Admin role with appropriate module permissions. SuperAdmin has full access to all endpoints.
 
 **400 - Validation Error:**
 ```json
@@ -92,6 +43,50 @@ Authorization: Bearer <jwt-token>
 
 ---
 
+### 1. Admin Login
+
+**Endpoint:** `POST /login`
+
+**Description:** Authenticates an Admin user and returns a JWT token.
+
+**Authentication:** Not required
+
+**Request Body:**
+```json
+{
+  "email": "admin@company.com",
+  "password": "password123"
+}
+```
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Login successful",
+  "data": {
+    "_id": "admin_id",
+    "fullname": "Admin Name",
+    "username": "adminuser",
+    "email": "admin@company.com",
+    "role": "Admin",
+    "phone": "1234567890",
+    "department": "IT",
+    "adminArea": "Operations",
+    "company": {
+      "_id": "company_id",
+      "company_name": "Company Name",
+      "company_email": "company@example.com"
+    },
+    "status": "active",
+    "lastLogin": "2025-01-15T10:30:00.000Z"
+  },
+  "token": "jwt_token_here"
+}
+```
+
+---
+
 ### 2. Admin Logout
 
 **Endpoint:** `POST /logout`
@@ -110,7 +105,258 @@ Authorization: Bearer <jwt-token>
 
 ---
 
-### 3. HR / Finance User Management (Admin Side)
+### 3. Admin Management (SuperAdmin Only)
+
+**Base URL:** `http://localhost:3000/api/admin`
+
+- **Create Admin**
+  - **Endpoint:** `POST /create-admin`
+  - **Authentication:** Required (SuperAdmin token)
+  - **Description:** Creates a new Admin user for a company.
+  - **Request Body:**
+    ```json
+    {
+      "fullname": "Admin Name",
+      "username": "adminuser",
+      "email": "admin@company.com",
+      "password": "password123",
+      "originalPassword": "password123",
+      "phone": "1234567890",
+      "adminArea": "Operations",
+      "company": "company_id",
+      "permissions": {
+        "hrm": {
+          "create": true,
+          "read": true,
+          "update": true,
+          "delete": true
+        },
+        "crm": {
+          "create": false,
+          "read": true,
+          "update": true,
+          "delete": false
+        },
+        "erp": {
+          "create": false,
+          "read": false,
+          "update": false,
+          "delete": false
+        },
+        "payroll": {
+          "create": true,
+          "read": true,
+          "update": true,
+          "delete": true
+        }
+      }
+    }
+    ```
+  - **Permissions Format:**
+    - Each module (hrm, crm, erp, payroll) accepts: `create`, `read`, `update`, `delete` (all boolean, optional)
+    - The `access` field is automatically set to `true` if any permission (create, read, update, delete) is `true`
+    - If a module is not provided, all permissions default to `false`
+
+- **Get All Admins**
+  - **Endpoint:** `GET /admins`
+  - **Authentication:** Required (SuperAdmin token)
+  - **Description:** Retrieves all Admin users with their permissions.
+
+- **Get Admin by ID**
+  - **Endpoint:** `GET /admins/:id`
+  - **Authentication:** Required (SuperAdmin token)
+  - **Description:** Retrieves a specific Admin user by ID.
+
+- **Update Admin**
+  - **Endpoint:** `POST /update-admin/:id`
+  - **Authentication:** Required (SuperAdmin token)
+  - **Description:** Updates Admin user information.
+
+- **Delete Admin**
+  - **Endpoint:** `POST /delete-admin/:id`
+  - **Authentication:** Required (SuperAdmin token)
+  - **Description:** Deletes an Admin user.
+
+- **Update Admin Permissions**
+  - **Endpoint:** `POST /permissions/:id`
+  - **Authentication:** Required (SuperAdmin token)
+  - **Description:** Updates Admin module permissions.
+  - **Request Body:**
+    ```json
+    {
+      "permissions": {
+        "hrm": {
+          "access": true,
+          "canCreate": true,
+          "canRead": true,
+          "canUpdate": true,
+          "canDelete": true
+        },
+        "crm": {
+          "access": true,
+          "canCreate": false,
+          "canRead": true,
+          "canUpdate": true,
+          "canDelete": false
+        },
+        "erp": {
+          "access": false,
+          "canCreate": false,
+          "canRead": false,
+          "canUpdate": false,
+          "canDelete": false
+        },
+        "payroll": {
+          "access": true,
+          "canCreate": true,
+          "canRead": true,
+          "canUpdate": true,
+          "canDelete": true
+        }
+      }
+    }
+    ```
+
+- **Get Admin Permissions**
+  - **Endpoint:** `GET /permissions/:id`
+  - **Authentication:** Required (SuperAdmin token)
+  - **Description:** Retrieves Admin permissions for all modules.
+
+---
+
+### 4. HRM Module Management (Admin with HRM Permissions)
+
+**Base URL:** `http://localhost:3000/api/admin`
+
+- **Update HR User**
+  - **Endpoint:** `POST /hrm/update-user/:id`
+  - **Authentication:** Required (Admin token with HRM update permission)
+  - **Description:** Updates an HR/Finance user.
+  - **Required Permission:** `hrm.canUpdate = true`
+
+- **Delete HR User**
+  - **Endpoint:** `POST /hrm/delete-user/:id`
+  - **Authentication:** Required (Admin token with HRM delete permission)
+  - **Description:** Deletes an HR/Finance user.
+  - **Required Permission:** `hrm.canDelete = true`
+
+- **Update Employee**
+  - **Endpoint:** `POST /hrm/update-employee/:id`
+  - **Authentication:** Required (Admin token with HRM update permission)
+  - **Description:** Updates an employee record.
+  - **Required Permission:** `hrm.canUpdate = true`
+
+- **Delete Employee**
+  - **Endpoint:** `POST /hrm/delete-employee/:id`
+  - **Authentication:** Required (Admin token with HRM delete permission)
+  - **Description:** Deletes an employee record.
+  - **Required Permission:** `hrm.canDelete = true`
+
+---
+
+### 5. CRM Module Management (Admin with CRM Permissions)
+
+**Base URL:** `http://localhost:3000/api/crm`
+
+- **Get All CRM Records**
+  - **Endpoint:** `GET /`
+  - **Authentication:** Required (Admin token with CRM read permission)
+  - **Query Parameters:** `page`, `limit`, `search`
+  - **Required Permission:** `crm.canRead = true`
+
+- **Get CRM Record by ID**
+  - **Endpoint:** `GET /:id`
+  - **Authentication:** Required (Admin token with CRM read permission)
+  - **Required Permission:** `crm.canRead = true`
+
+- **Create CRM Record**
+  - **Endpoint:** `POST /`
+  - **Authentication:** Required (Admin token with CRM create permission)
+  - **Request Body:**
+    ```json
+    {
+      "name": "Customer Name",
+      "email": "customer@example.com",
+      "phone": "1234567890",
+      "notes": "Customer notes",
+      "status": "active"
+    }
+    ```
+  - **Required Permission:** `crm.canCreate = true`
+
+- **Update CRM Record**
+  - **Endpoint:** `POST /update/:id` (via CRM routes) or `POST /crm/update/:id` (via Admin routes)
+  - **Authentication:** Required (Admin token with CRM update permission)
+  - **Required Permission:** `crm.canUpdate = true`
+
+- **Delete CRM Record**
+  - **Endpoint:** `POST /delete/:id` (via CRM routes) or `POST /crm/delete/:id` (via Admin routes)
+  - **Authentication:** Required (Admin token with CRM delete permission)
+  - **Required Permission:** `crm.canDelete = true`
+
+---
+
+### 6. ERP Module Management (Admin with ERP Permissions)
+
+**Base URL:** `http://localhost:3000/api/erp`
+
+- **Get All ERP Records**
+  - **Endpoint:** `GET /`
+  - **Authentication:** Required (Admin token with ERP read permission)
+  - **Query Parameters:** `page`, `limit`, `search`, `category`
+  - **Required Permission:** `erp.canRead = true`
+
+- **Get ERP Record by ID**
+  - **Endpoint:** `GET /:id`
+  - **Authentication:** Required (Admin token with ERP read permission)
+  - **Required Permission:** `erp.canRead = true`
+
+- **Create ERP Record**
+  - **Endpoint:** `POST /`
+  - **Authentication:** Required (Admin token with ERP create permission)
+  - **Request Body:**
+    ```json
+    {
+      "name": "ERP Item Name",
+      "description": "Item description",
+      "category": "Category Name",
+      "status": "active",
+      "metadata": {}
+    }
+    ```
+  - **Required Permission:** `erp.canCreate = true`
+
+- **Update ERP Record**
+  - **Endpoint:** `POST /update/:id` (via ERP routes) or `POST /erp/update/:id` (via Admin routes)
+  - **Authentication:** Required (Admin token with ERP update permission)
+  - **Required Permission:** `erp.canUpdate = true`
+
+- **Delete ERP Record**
+  - **Endpoint:** `POST /delete/:id` (via ERP routes) or `POST /erp/delete/:id` (via Admin routes)
+  - **Authentication:** Required (Admin token with ERP delete permission)
+  - **Required Permission:** `erp.canDelete = true`
+
+---
+
+### 7. Payroll Module Management (Admin with Payroll Permissions)
+
+**Base URL:** `http://localhost:3000/api/admin`
+
+- **Update Payslip**
+  - **Endpoint:** `POST /payroll/update-payslip/:id`
+  - **Authentication:** Required (Admin token with Payroll update permission)
+  - **Description:** Updates a payslip record.
+  - **Required Permission:** `payroll.canUpdate = true`
+
+- **Delete Payslip**
+  - **Endpoint:** `POST /payroll/delete-payslip/:id`
+  - **Authentication:** Required (Admin token with Payroll delete permission)
+  - **Description:** Deletes a payslip record.
+  - **Required Permission:** `payroll.canDelete = true`
+
+---
+
+### 8. HR / Finance User Management (Admin Side)
 
 These APIs are implemented in the HR service but are used **by Admins (or SuperAdmin)** to create and manage HR/Finance users for a company.
 
@@ -146,7 +392,7 @@ http://localhost:3000/api/hr
 
 ---
 
-### 4. Employee Management (Admin Side)
+### 9. Employee Management (Admin Side)
 
 These APIs are implemented in the Employee service but are used **by Admins, Company HR, or SuperAdmin** to create and manage employees for a company.
 
@@ -177,7 +423,7 @@ http://localhost:3000/api/employees
 
 ---
 
-### 5. Company Access (Admin Side)
+### 10. Company Access (Admin Side)
 
 Admins are always associated with **one company** (via the `company` field on the Admin model). Company creation and lifecycle management is handled by **SuperAdmin**, and is documented separately.
 
@@ -206,11 +452,40 @@ This Admin API reference intentionally **does not duplicate** the full SuperAdmi
   "originalPassword": "String (required, stored in plain text)",
   "role": "String (required, default: 'Admin')",
   "phone": "String (required, 10-20 characters)",
-  "department": "String (required, 2-100 characters)",
   "adminArea": "String (required, 2-100 characters)",
   "company": "ObjectId (required, ref: 'Company')",
   "created_by": "ObjectId (required, ref: 'SuperAdmin')",
   "status": "String (enum: active|inactive|suspended, default: active)",
+  "permissions": {
+    "hrm": {
+      "access": "Boolean (default: false)",
+      "canCreate": "Boolean (default: false)",
+      "canRead": "Boolean (default: false)",
+      "canUpdate": "Boolean (default: false)",
+      "canDelete": "Boolean (default: false)"
+    },
+    "crm": {
+      "access": "Boolean (default: false)",
+      "canCreate": "Boolean (default: false)",
+      "canRead": "Boolean (default: false)",
+      "canUpdate": "Boolean (default: false)",
+      "canDelete": "Boolean (default: false)"
+    },
+    "erp": {
+      "access": "Boolean (default: false)",
+      "canCreate": "Boolean (default: false)",
+      "canRead": "Boolean (default: false)",
+      "canUpdate": "Boolean (default: false)",
+      "canDelete": "Boolean (default: false)"
+    },
+    "payroll": {
+      "access": "Boolean (default: false)",
+      "canCreate": "Boolean (default: false)",
+      "canRead": "Boolean (default: false)",
+      "canUpdate": "Boolean (default: false)",
+      "canDelete": "Boolean (default: false)"
+    }
+  },
   "lastLogin": "Date (optional)",
   "resetPasswordToken": "String (optional)",
   "resetPasswordExpires": "Date (optional)",
@@ -233,6 +508,30 @@ This Admin API reference intentionally **does not duplicate** the full SuperAdmi
 
 ---
 
+## Permission System
+
+The Admin system uses a role-based access control (RBAC) system with module-level permissions. Each Admin can be granted access to specific modules (HRM, CRM, ERP, Payroll) with granular permissions:
+
+- **access**: Boolean flag to enable/disable access to the module
+- **canCreate**: Permission to create new records in the module
+- **canRead**: Permission to view/read records in the module
+- **canUpdate**: Permission to update existing records in the module
+- **canDelete**: Permission to delete records in the module
+
+**Permission Hierarchy:**
+- SuperAdmin: Has full access to all modules and all operations (bypasses permission checks)
+- Admin: Access is controlled by the `permissions` object in their profile
+
+**403 - Permission Denied:**
+```json
+{
+  "success": false,
+  "message": "Access denied. You don't have permission to update in HRM module."
+}
+```
+
+---
+
 ## Security Notes
 - **PLAIN TEXT PASSWORDS**: Admin passwords are stored in plain text (not hashed)
 - JWT tokens expire in 7 days by default (configurable via JWT_EXPIRES_IN)
@@ -244,8 +543,39 @@ This Admin API reference intentionally **does not duplicate** the full SuperAdmi
 - Duplicate email and username prevention
 - **SUPERADMIN ACCESS**: SuperAdmin can view admin passwords when retrieving admin details
 - Reset password tokens are automatically excluded from responses
+- **MODULE PERMISSIONS**: All module operations require appropriate permissions (SuperAdmin bypasses checks)
+
+---
+
+## Module Endpoints Summary
+
+### HRM Module
+- Update HR User: `POST /api/admin/hrm/update-user/:id`
+- Delete HR User: `POST /api/admin/hrm/delete-user/:id`
+- Update Employee: `POST /api/admin/hrm/update-employee/:id`
+- Delete Employee: `POST /api/admin/hrm/delete-employee/:id`
+
+### CRM Module
+- Base URL: `http://localhost:3000/api/crm`
+- Get All: `GET /`
+- Get by ID: `GET /:id`
+- Create: `POST /`
+- Update: `POST /update/:id` or `POST /api/admin/crm/update/:id`
+- Delete: `POST /delete/:id` or `POST /api/admin/crm/delete/:id`
+
+### ERP Module
+- Base URL: `http://localhost:3000/api/erp`
+- Get All: `GET /`
+- Get by ID: `GET /:id`
+- Create: `POST /`
+- Update: `POST /update/:id` or `POST /api/admin/erp/update/:id`
+- Delete: `POST /delete/:id` or `POST /api/admin/erp/delete/:id`
+
+### Payroll Module
+- Update Payslip: `POST /api/admin/payroll/update-payslip/:id`
+- Delete Payslip: `POST /api/admin/payroll/delete-payslip/:id`
 
 ---
 
 **Last Updated:** January 2025  
-**API Version:** 1.0.0
+**API Version:** 2.0.0
