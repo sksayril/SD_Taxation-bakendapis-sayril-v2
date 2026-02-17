@@ -43,6 +43,9 @@ exports.createAdminSchema = Joi.object({
     'string.empty': 'Company ID is required',
     'string.pattern.base': 'Company ID must be a valid MongoDB ObjectId'
   }),
+  department: Joi.string().pattern(/^[0-9a-fA-F]{24}$/).optional().allow(null, '').messages({
+    'string.pattern.base': 'Department ID must be a valid MongoDB ObjectId'
+  }),
   permissions: Joi.object({
     hrm: Joi.object({
       create: Joi.boolean().optional(),

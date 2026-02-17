@@ -56,9 +56,11 @@ curl -X GET "http://localhost:3000/api/companies?status=inactive" \
 
 **Endpoint:** `POST /create`
 
-**Description:** Creates a new company in the system.
+**Description:** Creates a new company in the system. A unique sequential company ID in the format `CI/SD/0000001` is automatically generated and assigned to the company.
 
 **Authentication:** Required (JWT token)
+
+**Note:** The `company_id` field is automatically generated in the format `CI/SD/0000001` (where the number increments sequentially). This ID is unique and cannot be manually set or modified.
 
 **Request Body:**
 - **Content-Type:** `multipart/form-data`
@@ -141,7 +143,8 @@ esicNumber: "ESIC123456789"
   "success": true,
   "message": "Company created successfully",
   "data": {
-    "id": "64f8a1b2c3d4e5f6a7b8c9d0",
+    "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
+    "company_id": "CI/SD/0000001",
     "company_name": "Acme Corporation",
     "company_email": "contact@acmecorp.com",
     "company_phone": "+1-555-123-4567",
@@ -429,6 +432,7 @@ console.log(updateData);
   "data": [
     {
       "_id": "68f210dae0021a8a2431defc",
+      "company_id": "CI/SD/0000001",
       "company_name": "Local Services Inc",
       "company_email": "contact@localservices.com",
       "company_phone": "1234567891",
@@ -558,6 +562,7 @@ console.log(data);
   "data": [
     {
       "_id": "68f210dae0021a8a2431defc",
+      "company_id": "CI/SD/0000001",
       "company_name": "Local Services Inc",
       "company_email": "contact@localservices.com",
       "company_phone": "1234567891",
@@ -794,6 +799,7 @@ console.log(data);
   "message": "Company retrieved successfully",
   "data": {
     "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
+    "company_id": "CI/SD/0000001",
     "company_name": "Tech Solutions Inc",
     "company_email": "info@techsolutions.com",
     "company_phone": "+1-555-0123",
@@ -866,6 +872,7 @@ console.log(data);
   "message": "Company updated successfully",
   "data": {
     "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
+    "company_id": "CI/SD/0000001",
     "company_name": "Updated Tech Solutions Inc",
     "company_email": "updated@techsolutions.com",
     "company_phone": "+1-555-0124",
@@ -918,7 +925,8 @@ console.log(data);
   "success": true,
   "message": "Company status updated successfully",
   "data": {
-    "id": "64f8a1b2c3d4e5f6a7b8c9d0",
+    "_id": "64f8a1b2c3d4e5f6a7b8c9d0",
+    "company_id": "CI/SD/0000001",
     "company_name": "Tech Solutions Inc",
     "status": "inactive"
   }

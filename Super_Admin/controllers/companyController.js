@@ -1,5 +1,23 @@
 const Company = require('../models/Company');
+const Counter = require('../models/Counter');
 const { uploadToS3, deleteFromS3 } = require('../config/s3Config');
+
+// Function to generate next company ID in format CI/SD/0000001
+const generateCompanyId = async () => {
+  try {
+    const counter = await Counter.findOneAndUpdate(
+      { name: 'companyId' },
+      { $inc: { sequence: 1 } },
+      { new: true, upsert: true }
+    );
+    
+    const sequenceNumber = counter.sequence.toString().padStart(7, '0');
+    return `CI/SD/${sequenceNumber}`;
+  } catch (error) {
+    console.error('Error generating company ID:', error);
+    throw new Error('Failed to generate company ID');
+  }
+};
 
 // ✅ Create Company
 exports.createCompany = async (req, res) => {
@@ -97,15 +115,19 @@ exports.createCompany = async (req, res) => {
     const parsedPf = parseBoolean(pf);
     const parsedEsic = parseBoolean(esic);
 
+    // Generate unique company ID
+    const company_id = await generateCompanyId();
+
     // Create new company
-    const company = await Company.create({
+    // Only include gstNumber if it's provided and not empty
+    const companyData = {
+      company_id: company_id,
       company_name,
       company_email,
       company_phone,
       company_address: parsedCompanyAddress,
       company_logo: company_logo_url,
       company_website: company_website || null,
-      gstNumber: gstNumber || null,
       fiscalYear: fiscalYear || null,
       industries: industries || null,
       constitution_of_business: constitution_of_business || null,
@@ -120,14 +142,21 @@ exports.createCompany = async (req, res) => {
       esic: parsedEsic,
       esicNumber: parsedEsic ? (esicNumber || null) : null,
       created_by: req.user.id
-    });
+    };
 
+    // Only add gstNumber if it's provided and not empty (to avoid null duplicate key error)
+    if (gstNumber && gstNumber.trim() !== '') {
+      companyData.gstNumber = gstNumber;
+    }
+
+    const company = await Company.create(companyData);
 
     res.status(201).json({
       success: true,
       message: 'Company created successfully',
       data: {
-        id: company._id,
+        _id: company._id,
+        company_id: company.company_id,
         company_name: company.company_name,
         company_email: company.company_email,
         company_phone: company.company_phone,
@@ -181,6 +210,7 @@ exports.getAllCompanies = async (req, res) => {
     // Format response in compact format
     const formattedCompanies = companies.map(company => ({
       _id: company._id,
+      company_id: company.company_id,
       company_name: company.company_name,
       company_email: company.company_email,
       company_phone: company.company_phone,
@@ -276,6 +306,7 @@ exports.filterCompanies = async (req, res) => {
       // Format response
       const formattedCompany = {
         _id: updatedCompany._id,
+        company_id: updatedCompany.company_id,
         company_name: updatedCompany.company_name,
         company_email: updatedCompany.company_email,
         company_phone: updatedCompany.company_phone,
@@ -324,6 +355,7 @@ exports.filterCompanies = async (req, res) => {
     // Format response in compact format
     const formattedCompanies = companies.map(company => ({
       _id: company._id,
+      company_id: company.company_id,
       company_name: company.company_name,
       company_email: company.company_email,
       company_phone: company.company_phone,
@@ -389,10 +421,40 @@ exports.getCompanyById = async (req, res) => {
       });
     }
 
+    // Format response to ensure company_id is included
+    const formattedCompany = {
+      _id: company._id,
+      company_id: company.company_id,
+      company_name: company.company_name,
+      company_email: company.company_email,
+      company_phone: company.company_phone,
+      company_address: company.company_address,
+      company_logo: company.company_logo,
+      company_website: company.company_website,
+      gstNumber: company.gstNumber,
+      fiscalYear: company.fiscalYear,
+      industries: company.industries,
+      constitution_of_business: company.constitution_of_business,
+      tdsApplicable: company.tdsApplicable,
+      tdsNumber: company.tdsNumber,
+      professional: company.professional,
+      professionalNumber: company.professionalNumber,
+      epf: company.epf,
+      epfNumber: company.epfNumber,
+      pf: company.pf,
+      pfNumber: company.pfNumber,
+      esic: company.esic,
+      esicNumber: company.esicNumber,
+      status: company.status,
+      created_by: company.created_by,
+      createdAt: company.createdAt,
+      updatedAt: company.updatedAt
+    };
+
     res.json({
       success: true,
       message: 'Company retrieved successfully',
-      data: company
+      data: formattedCompany
     });
   } catch (err) {
     console.error('Get company error:', err);
@@ -514,10 +576,40 @@ exports.updateCompany = async (req, res) => {
       { new: true, runValidators: true }
     ).populate('created_by', 'name email');
 
+    // Format response to ensure company_id is included
+    const formattedCompany = {
+      _id: updatedCompany._id,
+      company_id: updatedCompany.company_id,
+      company_name: updatedCompany.company_name,
+      company_email: updatedCompany.company_email,
+      company_phone: updatedCompany.company_phone,
+      company_address: updatedCompany.company_address,
+      company_logo: updatedCompany.company_logo,
+      company_website: updatedCompany.company_website,
+      gstNumber: updatedCompany.gstNumber,
+      fiscalYear: updatedCompany.fiscalYear,
+      industries: updatedCompany.industries,
+      constitution_of_business: updatedCompany.constitution_of_business,
+      tdsApplicable: updatedCompany.tdsApplicable,
+      tdsNumber: updatedCompany.tdsNumber,
+      professional: updatedCompany.professional,
+      professionalNumber: updatedCompany.professionalNumber,
+      epf: updatedCompany.epf,
+      epfNumber: updatedCompany.epfNumber,
+      pf: updatedCompany.pf,
+      pfNumber: updatedCompany.pfNumber,
+      esic: updatedCompany.esic,
+      esicNumber: updatedCompany.esicNumber,
+      status: updatedCompany.status,
+      created_by: updatedCompany.created_by,
+      createdAt: updatedCompany.createdAt,
+      updatedAt: updatedCompany.updatedAt
+    };
+
     res.json({
       success: true,
       message: 'Company updated successfully',
-      data: updatedCompany
+      data: formattedCompany
     });
   } catch (err) {
     console.error('Update company error:', err);
@@ -579,7 +671,8 @@ exports.updateCompanyStatus = async (req, res) => {
       success: true,
       message: 'Company status updated successfully',
       data: {
-        id: company._id,
+        _id: company._id,
+        company_id: company.company_id,
         company_name: company.company_name,
         status: company.status
       }

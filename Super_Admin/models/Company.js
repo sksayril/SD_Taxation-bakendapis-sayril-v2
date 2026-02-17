@@ -2,6 +2,13 @@ const mongoose = require('mongoose');
 
 const CompanySchema = new mongoose.Schema(
     { 
+        company_id: {
+            type: String,
+            required: true,
+            unique: true,
+            trim: true,
+            uppercase: true
+        },
         company_name: {
             type: String, 
             required: true,
@@ -152,5 +159,8 @@ const CompanySchema = new mongoose.Schema(
         strict: false 
     }
 );
+
+// Create sparse unique index for gstNumber to allow multiple null values
+CompanySchema.index({ gstNumber: 1 }, { unique: true, sparse: true });
 
 module.exports = mongoose.model('Company', CompanySchema);

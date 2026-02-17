@@ -1,5 +1,6 @@
 const Admin = require('../models/Admin');
 const Company = require('../../Super_Admin/models/Company');
+const Department = require('../../Super_Admin/models/Department');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { verifyCompanySubscription } = require('../../Super_Admin/middleware/checkSubscription');
@@ -22,7 +23,7 @@ exports.createAdmin = async (req, res) => {
       });
     }
 
-    const { fullname, username, email, password, originalPassword, phone, adminArea, company, permissions } = req.body;
+    const { fullname, username, email, password, originalPassword, phone, adminArea, company, department, permissions } = req.body;
 
     // Check if email already exists
     const existingEmail = await Admin.findOne({ email });
@@ -49,6 +50,17 @@ exports.createAdmin = async (req, res) => {
         success: false, 
         message: 'Company not found' 
       });
+    }
+
+    // Verify department exists if provided
+    if (department) {
+      const departmentExists = await Department.findById(department);
+      if (!departmentExists) {
+        return res.status(400).json({ 
+          success: false, 
+          message: 'Department not found' 
+        });
+      }
     }
 
     // Map permissions from new format (create, read, update, delete) to database format (access, canCreate, canRead, canUpdate, canDelete)
@@ -87,6 +99,7 @@ exports.createAdmin = async (req, res) => {
       phone,
       adminArea,
       company,
+      department: department || null,
       created_by: req.user ? req.user.id : "68f210dae0021a8a2431defc" // From auth middleware or default
     };
 
@@ -116,7 +129,7 @@ exports.createAdmin = async (req, res) => {
       email: admin.email,
       role: admin.role,
       phone: admin.phone,
-      department: admin.department,
+      department: admin.department || null,
       adminArea: admin.adminArea,
       company: admin.company,
       status: admin.status,

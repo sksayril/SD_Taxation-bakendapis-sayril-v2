@@ -55,6 +55,11 @@ const AdminSchema = new mongoose.Schema(
             ref: 'Company',
             required: true
         },
+        department: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Department',
+            required: false
+        },
         created_by: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'SuperAdmin',

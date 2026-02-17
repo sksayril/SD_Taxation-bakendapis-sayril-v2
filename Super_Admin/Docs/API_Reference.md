@@ -490,6 +490,7 @@ Authorization: Bearer <jwt-token>
   "data": [
     {
       "_id": "698c78c63416024b097cb6fb",
+      "company_id": "CI/SD/0000001",
       "company_name": "Local Services Inc",
       "company_email": "contact@localservices.com",
       "company_phone": "1234567891",
@@ -720,6 +721,7 @@ console.log(data);
   "phone": "1234567895",
   "adminArea": "kolkata",
   "company": "698c78c63416024b097cb6fb",
+  "department": "698c78c63416024b097cb6fc",
   "permissions": {
     "hrm": {
       "create": true,
@@ -759,6 +761,7 @@ console.log(data);
 - `phone` (required): Phone number (10-20 characters)
 - `adminArea` (required): Admin area/location (2-100 characters)
 - `company` (required): Company ID (valid MongoDB ObjectId)
+- `department` (optional): Department ID (valid MongoDB ObjectId). Must reference an existing department
 - `permissions` (optional): Object containing module permissions
   - Each module (hrm, crm, erp, payroll) can have:
     - `create` (boolean, optional): Permission to create records
@@ -782,6 +785,7 @@ console.log(data);
     "phone": "1234567895",
     "adminArea": "kolkata",
     "company": "698c78c63416024b097cb6fb",
+    "department": "698c78c63416024b097cb6fc",
     "status": "active",
     "password": "password123",
     "originalPassword": "password123",
@@ -858,6 +862,14 @@ console.log(data);
 }
 ```
 
+**400 - Department Not Found:**
+```json
+{
+  "success": false,
+  "message": "Department not found"
+}
+```
+
 **cURL Example:**
 ```bash
 curl -X POST "http://localhost:3000/api/superadmin/create-admin" \
@@ -873,6 +885,7 @@ curl -X POST "http://localhost:3000/api/superadmin/create-admin" \
     "phone": "1234567895",
     "adminArea": "kolkata",
     "company": "698c78c63416024b097cb6fb",
+    "department": "698c78c63416024b097cb6fc",
     "permissions": {
       "hrm": {
         "create": true,
@@ -920,6 +933,7 @@ const response = await fetch('http://localhost:3000/api/superadmin/create-admin'
     phone: '1234567895',
     adminArea: 'kolkata',
     company: '698c78c63416024b097cb6fb',
+    department: '698c78c63416024b097cb6fc',
     permissions: {
       hrm: {
         create: true,
@@ -957,6 +971,485 @@ console.log(data);
 
 ---
 
+### 9. Create Department (SuperAdmin Only)
+
+**Endpoint:** `POST /departments/create`
+
+**Description:** Creates a new department in the system. SuperAdmin can create departments that can be used across the system.
+
+**Authentication:** Required (SuperAdmin JWT token)
+
+**Request Body:**
+```json
+{
+  "department_name": "string (required, 2-100 characters)",
+  "description": "string (optional, max 500 characters)",
+  "status": "string (optional, one of: active, inactive)"
+}
+```
+
+**Request Body Fields:**
+- `department_name` (required): Name of the department (2-100 characters, unique)
+- `description` (optional): Description of the department (max 500 characters)
+- `status` (optional): Status of the department. Valid values: `active`, `inactive`. Defaults to `active`
+
+**Success Response (201):**
+```json
+{
+  "success": true,
+  "message": "Department created successfully",
+  "data": {
+    "_id": "698c78c63416024b097cb6fb",
+    "department_name": "Human Resources",
+    "description": "HR department for managing employees",
+    "status": "active",
+    "created_by": "68f1df75eb4191c9a3610f08",
+    "createdAt": "2025-01-15T10:30:00.000Z",
+    "updatedAt": "2025-01-15T10:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+**400 - Validation Error:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": [
+    "Department name is required",
+    "Department name must be at least 2 characters"
+  ]
+}
+```
+
+**400 - Department Already Exists:**
+```json
+{
+  "success": false,
+  "message": "Department with this name already exists"
+}
+```
+
+**400 - Request Body Required:**
+```json
+{
+  "success": false,
+  "message": "Request body is required"
+}
+```
+
+**401 - Unauthorized:**
+```json
+{
+  "success": false,
+  "message": "No token provided"
+}
+```
+
+**500 - Server Error:**
+```json
+{
+  "success": false,
+  "message": "Internal server error",
+  "error": "Error message details"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X POST "http://localhost:3000/api/superadmin/departments/create" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "department_name": "Human Resources",
+    "description": "HR department for managing employees",
+    "status": "active"
+  }'
+```
+
+**JavaScript Example:**
+```javascript
+const response = await fetch('http://localhost:3000/api/superadmin/departments/create', {
+  method: 'POST',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    department_name: 'Human Resources',
+    description: 'HR department for managing employees',
+    status: 'active'
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+---
+
+### 10. Get All Departments (SuperAdmin Only)
+
+**Endpoint:** `GET /departments`
+
+**Description:** Retrieves all departments with optional filtering, search, and pagination. SuperAdmin can view all departments in the system.
+
+**Authentication:** Required (SuperAdmin JWT token)
+
+**Query Parameters:**
+- `status` (optional): Filter by status. Valid values: `active`, `inactive`
+- `search` (optional): Search by department name or description (case-insensitive)
+- `page` (optional): Page number for pagination (default: 1)
+- `limit` (optional): Number of items per page (default: 100)
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Departments retrieved successfully",
+  "data": [
+    {
+      "_id": "698c78c63416024b097cb6fb",
+      "department_name": "Human Resources",
+      "description": "HR department for managing employees",
+      "status": "active",
+      "created_by": {
+        "_id": "68f1df75eb4191c9a3610f08",
+        "name": "Super Admin",
+        "email": "superadmin@example.com"
+      },
+      "createdAt": "2025-01-15T10:30:00.000Z",
+      "updatedAt": "2025-01-15T10:30:00.000Z"
+    },
+    {
+      "_id": "698c78c63416024b097cb6fc",
+      "department_name": "Information Technology",
+      "description": "IT department for technical support",
+      "status": "active",
+      "created_by": {
+        "_id": "68f1df75eb4191c9a3610f08",
+        "name": "Super Admin",
+        "email": "superadmin@example.com"
+      },
+      "createdAt": "2025-01-15T11:00:00.000Z",
+      "updatedAt": "2025-01-15T11:00:00.000Z"
+    }
+  ],
+  "pagination": {
+    "page": 1,
+    "limit": 100,
+    "total": 2,
+    "pages": 1
+  }
+}
+```
+
+**Example Requests:**
+
+**Get All Departments:**
+```
+GET /api/superadmin/departments
+```
+
+**Filter by Status:**
+```
+GET /api/superadmin/departments?status=active
+```
+
+**Search Departments:**
+```
+GET /api/superadmin/departments?search=Human
+```
+
+**Pagination:**
+```
+GET /api/superadmin/departments?page=1&limit=10
+```
+
+**Combined Filters:**
+```
+GET /api/superadmin/departments?status=active&search=IT&page=1&limit=10
+```
+
+**Error Responses:**
+
+**401 - Unauthorized:**
+```json
+{
+  "success": false,
+  "message": "No token provided"
+}
+```
+
+**401 - Invalid or Expired Token:**
+```json
+{
+  "success": false,
+  "message": "Invalid or expired token"
+}
+```
+
+**500 - Server Error:**
+```json
+{
+  "success": false,
+  "message": "Internal server error",
+  "error": "Error message details"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X GET "http://localhost:3000/api/superadmin/departments?status=active&page=1&limit=10" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**JavaScript Example:**
+```javascript
+const response = await fetch('http://localhost:3000/api/superadmin/departments?status=active&page=1&limit=10', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+  }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+---
+
+### 11. Update Department (SuperAdmin Only)
+
+**Endpoint:** `PUT /departments/:id` or `POST /departments/:id/update`
+
+**Description:** Updates an existing department's information. SuperAdmin can modify department name, description, and status.
+
+**Authentication:** Required (SuperAdmin JWT token)
+
+**URL Parameters:**
+- `id` (required): Department ID (MongoDB ObjectId)
+
+**Request Body:**
+```json
+{
+  "department_name": "string (optional, 2-100 characters)",
+  "description": "string (optional, max 500 characters)",
+  "status": "string (optional, one of: active, inactive)"
+}
+```
+
+**Request Body Fields:**
+- `department_name` (optional): Name of the department (2-100 characters, must be unique if changed)
+- `description` (optional): Description of the department (max 500 characters)
+- `status` (optional): Status of the department. Valid values: `active`, `inactive`
+
+**Note:** At least one field must be provided in the request body.
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Department updated successfully",
+  "data": {
+    "_id": "698c78c63416024b097cb6fb",
+    "department_name": "Human Resources",
+    "description": "Updated HR department description",
+    "status": "active",
+    "created_by": {
+      "_id": "68f1df75eb4191c9a3610f08",
+      "name": "Super Admin",
+      "email": "superadmin@example.com"
+    },
+    "createdAt": "2025-01-15T10:30:00.000Z",
+    "updatedAt": "2025-01-15T12:30:00.000Z"
+  }
+}
+```
+
+**Error Responses:**
+
+**400 - Validation Error:**
+```json
+{
+  "success": false,
+  "message": "Validation failed",
+  "errors": [
+    "Department name must be at least 2 characters"
+  ]
+}
+```
+
+**400 - Department Name Already Exists:**
+```json
+{
+  "success": false,
+  "message": "Department with this name already exists"
+}
+```
+
+**400 - Invalid Department ID Format:**
+```json
+{
+  "success": false,
+  "message": "Invalid department ID format"
+}
+```
+
+**404 - Department Not Found:**
+```json
+{
+  "success": false,
+  "message": "Department not found"
+}
+```
+
+**401 - Unauthorized:**
+```json
+{
+  "success": false,
+  "message": "No token provided"
+}
+```
+
+**500 - Server Error:**
+```json
+{
+  "success": false,
+  "message": "Internal server error",
+  "error": "Error message details"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X PUT "http://localhost:3000/api/superadmin/departments/698c78c63416024b097cb6fb" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "department_name": "Human Resources",
+    "description": "Updated HR department description",
+    "status": "active"
+  }'
+```
+
+**JavaScript Example:**
+```javascript
+const response = await fetch('http://localhost:3000/api/superadmin/departments/698c78c63416024b097cb6fb', {
+  method: 'PUT',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN',
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    department_name: 'Human Resources',
+    description: 'Updated HR department description',
+    status: 'active'
+  })
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+---
+
+### 12. Delete Department (SuperAdmin Only)
+
+**Endpoint:** `DELETE /departments/:id` or `POST /departments/:id/delete`
+
+**Description:** Deletes an existing department from the system. The department cannot be deleted if it is assigned to any admins or employees.
+
+**Authentication:** Required (SuperAdmin JWT token)
+
+**URL Parameters:**
+- `id` (required): Department ID (MongoDB ObjectId)
+
+**Success Response (200):**
+```json
+{
+  "success": true,
+  "message": "Department deleted successfully",
+  "data": {
+    "_id": "698c78c63416024b097cb6fb",
+    "department_name": "Human Resources"
+  }
+}
+```
+
+**Error Responses:**
+
+**400 - Invalid Department ID Format:**
+```json
+{
+  "success": false,
+  "message": "Invalid department ID format"
+}
+```
+
+**400 - Department In Use:**
+```json
+{
+  "success": false,
+  "message": "Cannot delete department 'Human Resources' because it is assigned to one or more admins. Please reassign or remove those admins first."
+}
+```
+
+```json
+{
+  "success": false,
+  "message": "Cannot delete department 'Human Resources' because it is assigned to one or more employees. Please reassign or remove those employees first."
+}
+```
+
+**404 - Department Not Found:**
+```json
+{
+  "success": false,
+  "message": "Department not found"
+}
+```
+
+**401 - Unauthorized:**
+```json
+{
+  "success": false,
+  "message": "No token provided"
+}
+```
+
+**500 - Server Error:**
+```json
+{
+  "success": false,
+  "message": "Internal server error",
+  "error": "Error message details"
+}
+```
+
+**cURL Example:**
+```bash
+curl -X DELETE "http://localhost:3000/api/superadmin/departments/698c78c63416024b097cb6fb" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN"
+```
+
+**JavaScript Example:**
+```javascript
+const response = await fetch('http://localhost:3000/api/superadmin/departments/698c78c63416024b097cb6fb', {
+  method: 'DELETE',
+  headers: {
+    'Authorization': 'Bearer YOUR_JWT_TOKEN'
+  }
+});
+
+const data = await response.json();
+console.log(data);
+```
+
+---
+
 ## Data Models
 
 ### SuperAdmin Model
@@ -982,6 +1475,19 @@ console.log(data);
   "email": "String (user email)",
   "iat": "Number (issued at)",
   "exp": "Number (expiration)"
+}
+```
+
+### Department Model
+```javascript
+{
+  "_id": "ObjectId",
+  "department_name": "String (required, unique, 2-100 characters)",
+  "description": "String (optional, max 500 characters)",
+  "status": "String (enum: 'active', 'inactive', default: 'active')",
+  "created_by": "ObjectId (ref: 'SuperAdmin', required)",
+  "createdAt": "Date",
+  "updatedAt": "Date"
 }
 ```
 
